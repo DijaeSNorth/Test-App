@@ -71,6 +71,8 @@ const tabs: Array<{ id: Tab; label: string; icon: "forge" | "path" | "workshop" 
   { id: "profile", label: "Isles", icon: "profile" }
 ];
 
+const signalPulseMarks = [0, 1, 2, 3, 4];
+
 const tabPassages: Record<
   Tab,
   {
@@ -285,6 +287,9 @@ type TideSignal = {
   lesson: string;
   riskClass: string;
   heatSync: "cold" | "ready" | "hot";
+  pulse: number;
+  beaconAngle: number;
+  status: string;
 };
 
 const defaultSettings: PlayerSettings = {
@@ -528,11 +533,19 @@ function getTideSignal(contract: HourlyContract, islandCondition: IslandConditio
   const phases = ["ebbing gate", "reef rise", "lantern slack", "moon pull", "fog return"];
   const phase = phases[(contract.hour + contract.difficulty + islandConditions.indexOf(islandCondition)) % phases.length];
   const heatSync = forgeHeat < getHeatTarget(contract) - getHeatBand(contract) ? "cold" : forgeHeat > getHeatTarget(contract) + getHeatBand(contract) ? "hot" : "ready";
+  const riskPulse = islandCondition.risk === "High" ? 3 : islandCondition.risk === "Medium" ? 2 : 1;
+  const heatPulse = heatSync === "ready" ? 1 : heatSync === "hot" ? 3 : 2;
+  const pulse = Math.min(5, riskPulse + heatPulse);
+  const beaconAngle = ((contract.hour * 23 + contract.difficulty * 17 + islandConditions.indexOf(islandCondition) * 31) % 78) - 39;
+  const status = heatSync === "ready" ? "signal locked" : heatSync === "hot" ? "vent before trial" : "raise forge heat";
 
   return {
     phase,
     riskClass: islandCondition.risk.toLowerCase(),
     heatSync,
+    pulse,
+    beaconAngle,
+    status,
     ...timingBySkill[contract.skill]
   };
 }
@@ -1757,7 +1770,17 @@ function ForgeScreen({
         })}
       </div>
 
-      <section className="forge-console" aria-label="Live forge console">
+      <section
+        className="forge-console"
+        aria-label="Live forge console"
+        style={
+          {
+            "--signal-accent": islandCondition.accent,
+            "--signal-angle": `${tideSignal.beaconAngle}deg`,
+            "--signal-pulse": tideSignal.pulse
+          } as CSSProperties
+        }
+      >
         <div className="contract-banner">
           <div>
             <p className="overline">Collection Route - Tier {contract.difficulty}</p>
@@ -1775,6 +1798,11 @@ function ForgeScreen({
             <span />
             <span />
             <span />
+          </div>
+          <div className="lighthouse-beacon" data-risk={tideSignal.riskClass} data-heat={tideSignal.heatSync} aria-hidden="true">
+            <span className="beacon-ray" />
+            <span className="beacon-ring" />
+            <span className="beacon-tower" />
           </div>
           <div className="scene-resource-orbs" aria-label="Material supply quick view">
             {supplyTiers.map((tier) => (
@@ -1837,20 +1865,29 @@ function ForgeScreen({
           className="tide-language-strip"
           data-risk={tideSignal.riskClass}
           data-heat={tideSignal.heatSync}
-          aria-label="Tide signal color guide"
+          data-pulse={tideSignal.pulse}
+          aria-label={`Tide signal color guide, ${tideSignal.status}, ${tideSignal.pulse} of 5 pulse strength`}
+          style={
+            {
+              "--signal-accent": islandCondition.accent,
+              "--signal-angle": `${tideSignal.beaconAngle}deg`
+            } as CSSProperties
+          }
         >
           <div className="tide-signal-main">
             <span>Tide</span>
             <strong>{tideSignal.phase}</strong>
-            <em>{islandCondition.label}</em>
+            <em>{tideSignal.status}</em>
           </div>
           <div className="tide-signal-lane" aria-hidden="true">
-            <i />
-            <i />
-            <i />
+            {signalPulseMarks.map((mark) => (
+              <i className={mark < tideSignal.pulse ? "active" : ""} key={mark} />
+            ))}
           </div>
           <div className="tide-signal-detail">
-            <span>{tideSignal.channel}</span>
+            <span>
+              {tideSignal.channel} / {islandCondition.label}
+            </span>
             <strong>{tideSignal.timing}</strong>
             <em>{tideSignal.lesson}</em>
           </div>

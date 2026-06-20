@@ -1482,6 +1482,116 @@ textarea:focus-visible {
   opacity: 0.18;
 }
 
+.lighthouse-beacon {
+  position: absolute;
+  top: 116px;
+  right: 18px;
+  z-index: 6;
+  width: 86px;
+  height: 86px;
+  pointer-events: none;
+  filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.44));
+}
+
+.beacon-ray,
+.beacon-ring,
+.beacon-tower {
+  position: absolute;
+  pointer-events: none;
+}
+
+.beacon-ray {
+  inset: 12px auto auto -60px;
+  width: 132px;
+  height: 44px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--signal-accent, var(--orange-2)), transparent 58%),
+      rgba(255, 244, 218, 0.2),
+      transparent
+    );
+  clip-path: polygon(0 42%, 100% 0, 82% 64%, 0 58%);
+  filter: blur(1px);
+  opacity: 0.62;
+  transform-origin: 86% 48%;
+  animation: beacon-ray-scan 4200ms ease-in-out infinite;
+}
+
+.beacon-ring {
+  inset: 15px 12px auto auto;
+  width: 48px;
+  height: 48px;
+  border: 1px solid color-mix(in srgb, var(--signal-accent, var(--orange-2)), white 14%);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--signal-accent, var(--orange-2)), transparent 58%), transparent 38%),
+    rgba(7, 11, 10, 0.32);
+  box-shadow:
+    inset 0 0 14px rgba(7, 11, 10, 0.52),
+    0 0 18px color-mix(in srgb, var(--signal-accent, var(--orange-2)), transparent 58%);
+  animation: beacon-ring-pulse 1800ms ease-in-out infinite;
+}
+
+.beacon-tower {
+  right: 25px;
+  bottom: 9px;
+  width: 22px;
+  height: 52px;
+  border: 1px solid rgba(255, 216, 138, 0.24);
+  border-radius: 10px 10px 4px 4px;
+  background:
+    linear-gradient(180deg, rgba(255, 244, 218, 0.22), transparent 28%),
+    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0 2px, transparent 2px 9px),
+    rgba(7, 11, 10, 0.7);
+}
+
+.beacon-tower::before {
+  content: "";
+  position: absolute;
+  inset: -9px 2px auto;
+  height: 13px;
+  border-radius: 8px 8px 3px 3px;
+  background: color-mix(in srgb, var(--signal-accent, var(--orange-2)), white 12%);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--signal-accent, var(--orange-2)), transparent 24%);
+}
+
+.lighthouse-beacon[data-risk="high"] .beacon-ray,
+.lighthouse-beacon[data-heat="hot"] .beacon-ray {
+  animation-duration: 2600ms;
+  opacity: 0.8;
+}
+
+.lighthouse-beacon[data-heat="cold"] .beacon-ray {
+  animation-duration: 5400ms;
+  opacity: 0.44;
+}
+
+@keyframes beacon-ray-scan {
+  0%,
+  100% {
+    transform: rotate(calc(var(--signal-angle, 0deg) - 9deg));
+  }
+
+  50% {
+    transform: rotate(calc(var(--signal-angle, 0deg) + 11deg));
+  }
+}
+
+@keyframes beacon-ring-pulse {
+  0%,
+  100% {
+    opacity: 0.62;
+    transform: scale(0.94);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
 .graphic-hud {
   position: absolute;
   z-index: 4;
@@ -1626,7 +1736,13 @@ textarea:focus-visible {
   height: 78px;
   z-index: 1;
   pointer-events: none;
-  background: linear-gradient(92deg, rgba(255, 216, 146, 0.36), rgba(255, 216, 146, 0.05), transparent);
+  background:
+    linear-gradient(
+      92deg,
+      color-mix(in srgb, var(--signal-accent, var(--orange-2)), white 42%),
+      color-mix(in srgb, var(--signal-accent, var(--orange-2)), transparent 82%),
+      transparent
+    );
   clip-path: polygon(0 38%, 100% 0, 100% 72%, 0 52%);
   filter: blur(1px);
   opacity: 0.62;
@@ -1636,12 +1752,12 @@ textarea:focus-visible {
 @keyframes lighthouse-sweep {
   0%,
   100% {
-    transform: translateX(-8%) rotate(-4deg);
+    transform: translateX(-8%) rotate(calc(var(--signal-angle, 0deg) - 6deg));
     opacity: 0.4;
   }
 
   50% {
-    transform: translateX(8%) rotate(3deg);
+    transform: translateX(8%) rotate(calc(var(--signal-angle, 0deg) + 5deg));
     opacity: 0.76;
   }
 }
@@ -1676,7 +1792,7 @@ textarea:focus-visible {
   left: 92px;
   right: 98px;
   z-index: 8;
-  grid-template-columns: 1fr 44px;
+  grid-template-columns: 1fr 58px;
   background: rgba(3, 8, 9, 0.62);
   backdrop-filter: blur(8px);
 }
@@ -2087,16 +2203,32 @@ textarea:focus-visible {
 .tide-language-strip {
   --risk-color: var(--teal);
   --heat-color: var(--orange-2);
+  --signal-color: var(--signal-accent, var(--risk-color));
+  position: relative;
+  isolation: isolate;
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) 54px minmax(0, 1.1fr);
+  grid-template-columns: minmax(0, 0.88fr) 68px minmax(0, 1.1fr);
   gap: 8px;
   align-items: center;
   padding: 8px;
+  overflow: hidden;
   border-radius: 8px;
   border: 1px solid color-mix(in srgb, var(--risk-color), transparent 56%);
   background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--signal-color), transparent 82%), transparent 56%),
     linear-gradient(90deg, color-mix(in srgb, var(--risk-color), transparent 86%), rgba(255, 255, 255, 0.025)),
     rgba(0, 0, 0, 0.16);
+}
+
+.tide-language-strip::before {
+  content: "";
+  position: absolute;
+  inset: -28% auto -28% -18%;
+  z-index: -1;
+  width: 52%;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--signal-color), transparent 76%), transparent);
+  opacity: 0.5;
+  transform: rotate(var(--signal-angle, 0deg));
 }
 
 .tide-language-strip[data-risk="medium"] {
@@ -2153,7 +2285,7 @@ textarea:focus-visible {
 
 .tide-signal-lane {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 3px;
   padding: 4px;
   border-radius: 8px;
@@ -2162,18 +2294,66 @@ textarea:focus-visible {
 }
 
 .tide-signal-lane i {
+  position: relative;
   height: 26px;
+  overflow: hidden;
   border-radius: 8px;
   background:
     repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.26) 0 2px, transparent 2px 6px),
-    color-mix(in srgb, var(--risk-color), transparent 66%);
+    color-mix(in srgb, var(--risk-color), transparent 82%);
+  opacity: 0.42;
 }
 
-.tide-signal-lane i:nth-child(2) {
+.tide-signal-lane i::after {
+  content: "";
+  position: absolute;
+  inset: auto 1px 1px;
+  height: 34%;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--heat-color), transparent 32%);
+  opacity: 0;
+}
+
+.tide-signal-lane i.active {
   background:
     linear-gradient(180deg, var(--heat-color), color-mix(in srgb, var(--heat-color), transparent 58%)),
     color-mix(in srgb, var(--risk-color), transparent 60%);
   box-shadow: 0 0 16px color-mix(in srgb, var(--heat-color), transparent 58%);
+  opacity: 1;
+  animation: tide-pulse-step 1500ms ease-in-out infinite;
+}
+
+.tide-signal-lane i.active::after {
+  opacity: 1;
+}
+
+.tide-signal-lane i.active:nth-child(2) {
+  animation-delay: -180ms;
+}
+
+.tide-signal-lane i.active:nth-child(3) {
+  animation-delay: -360ms;
+}
+
+.tide-signal-lane i.active:nth-child(4) {
+  animation-delay: -540ms;
+}
+
+.tide-signal-lane i.active:nth-child(5) {
+  animation-delay: -720ms;
+}
+
+@keyframes tide-pulse-step {
+  0%,
+  100% {
+    transform: translateY(0);
+    filter: brightness(0.94);
+  }
+
+  50% {
+    transform: translateY(-2px);
+    filter: brightness(1.2);
+  }
 }
 
 @keyframes forge-orbit {
@@ -5854,6 +6034,7 @@ textarea:focus-visible {
 
 .app-frame.focus-mode .forge-ambience,
 .app-frame.focus-mode .forge-touch-map,
+.app-frame.focus-mode .lighthouse-beacon,
 .app-frame.focus-mode .target-impact {
   display: none;
 }
@@ -5989,7 +6170,7 @@ textarea:focus-visible {
   }
 
   .tide-signal-lane {
-    grid-template-columns: repeat(3, minmax(34px, 1fr));
+    grid-template-columns: repeat(5, minmax(18px, 1fr));
   }
 
   .challenge-code strong {
@@ -6064,6 +6245,9 @@ textarea:focus-visible {
   .tap-target.active::before,
   .tap-target.impact::after,
   .sequence-chip.current::after,
+  .beacon-ray,
+  .beacon-ring,
+  .tide-signal-lane i.active,
   .screen-scroll.route-forward > .forge-panel,
   .screen-scroll.route-forward > .stack-panel,
   .screen-scroll.route-forward > .empty-state,
