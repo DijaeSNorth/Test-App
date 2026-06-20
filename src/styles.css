@@ -5090,7 +5090,7 @@ textarea:focus-visible {
 .bottom-nav {
   flex: 0 0 auto;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0;
   padding: 0 0 env(safe-area-inset-bottom);
   background:
@@ -5098,6 +5098,16 @@ textarea:focus-visible {
     rgba(10, 14, 13, 0.96);
   border-top: 1px solid rgba(255, 192, 102, 0.22);
   backdrop-filter: blur(16px);
+}
+
+.market-panel,
+.harbor-market-panel,
+.profit-summary-grid,
+.profit-toggle,
+.advanced-node-meter,
+.advanced-control-list,
+.advanced-forge-panel .microcopy {
+  display: none;
 }
 
 .nav-item {

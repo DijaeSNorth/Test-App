@@ -36,7 +36,7 @@ import {
 } from "./gameLogic";
 import type { CategoryId, CraftedItem, CreativityBreakdown, HourlyContract, ImaginationRecipe, ItemDraft, Rarity, SkillId } from "./types";
 
-type Tab = "forge" | "path" | "workshop" | "collection" | "profile";
+type Tab = "forge" | "workshop" | "collection";
 type RouteDirection = "forward" | "back";
 type RouteTransition = {
   id: number;
@@ -63,12 +63,10 @@ const testerSupplies: SupplyInventory = {
   legendary: 999
 };
 
-const tabs: Array<{ id: Tab; label: string; icon: "forge" | "path" | "workshop" | "collection" | "profile" }> = [
-  { id: "forge", label: "Forge", icon: "forge" },
-  { id: "path", label: "Path", icon: "path" },
-  { id: "workshop", label: "Market", icon: "workshop" },
-  { id: "collection", label: "Items", icon: "collection" },
-  { id: "profile", label: "Isles", icon: "profile" }
+const tabs: Array<{ id: Tab; label: string; icon: "forge" | "workshop" | "collection" }> = [
+  { id: "forge", label: "Craft", icon: "forge" },
+  { id: "workshop", label: "Quick Craft", icon: "workshop" },
+  { id: "collection", label: "Vault", icon: "collection" }
 ];
 
 const signalPulseMarks = [0, 1, 2, 3, 4];
@@ -85,44 +83,28 @@ const tabPassages: Record<
   }
 > = {
   forge: {
-    label: "Forge",
-    passage: "Anvil Gate",
-    detail: "Heat, timing, and strike craft",
+    label: "Craft",
+    passage: "Main Bench",
+    detail: "Choose materials, heat, and trial",
     accent: "#ff7a2a",
     secondary: "#ffc066",
     sigil: "Anvil"
   },
-  path: {
-    label: "Path",
-    passage: "Star Chart",
-    detail: "Skill nodes and maker legends",
-    accent: "#a980f1",
-    secondary: "#ffc066",
-    sigil: "Stars"
-  },
   workshop: {
-    label: "Market",
-    passage: "Hephaestus Quay",
-    detail: "Quick crafting and material odds",
+    label: "Quick Craft",
+    passage: "Hephaestus Bench",
+    detail: "Fast rolls or deeper customization",
     accent: "#73bd6f",
     secondary: "#ffc066",
-    sigil: "Quay"
+    sigil: "Hammer"
   },
   collection: {
-    label: "Items",
-    passage: "Relic Vault",
-    detail: "Tradable assets and export records",
+    label: "Vault",
+    passage: "Item Vault",
+    detail: "Saved crafted assets and exports",
     accent: "#38bdb0",
     secondary: "#f4f0e8",
     sigil: "Vault"
-  },
-  profile: {
-    label: "Isles",
-    passage: "Lighthouse Ledger",
-    detail: "Settings, supplies, and challenge codes",
-    accent: "#75d6ff",
-    secondary: "#ffc066",
-    sigil: "Beacon"
   }
 };
 
@@ -1386,7 +1368,7 @@ export default function App() {
             <span className="brand-mark logo-mark" aria-hidden="true" />
             <div>
               <h1>Eldertide Isles</h1>
-              <p>{testerMode ? "Tester build - unlimited supplies and shells" : dateLabel}</p>
+              <p>{testerMode ? "Tester build - unlimited crafting" : "Craft, tune, save items"}</p>
             </div>
           </div>
           <div className="topbar-actions">
@@ -1447,8 +1429,6 @@ export default function App() {
             />
           )}
 
-          {activeTab === "path" && <SkillPathScreen skillCounts={skillCounts} contract={contract} />}
-
           {activeTab === "workshop" && (
             <WorkshopScreen
               draft={draft}
@@ -1497,24 +1477,6 @@ export default function App() {
             />
           )}
 
-          {activeTab === "profile" && (
-            <ProfileScreen
-              collection={collection}
-              contracts={contracts}
-              dayKey={dayKey}
-              craftedRouteCount={craftedRouteCount}
-              supplies={visibleSupplies}
-              claimedCount={claimedCount}
-              activityLog={activityLog}
-              settings={settings}
-              challengeSeed={challengeSeed}
-              challengeContract={contract}
-              challengeTarget={Math.max(70, creativity.total)}
-              onUpdateSettings={updateSettings}
-              onRollChallenge={rollChallenge}
-              onCopyChallenge={() => void copyChallenge()}
-            />
-          )}
         </div>
 
         {routeTransition.id > 0 && <IsleRouteTransition key={routeTransition.id} transition={routeTransition} />}
@@ -1732,7 +1694,7 @@ function ForgeScreen({
     { id: "fog", label: "Fog", value: islandCondition.risk, tone: tideSignal.riskClass, color: islandCondition.accent },
     { id: "heat", label: "Heat", value: heatLabel(contract, forgeHeat), tone: tideSignal.heatSync, color: tideSignal.heatSync === "ready" ? "#73bd6f" : tideSignal.heatSync === "hot" ? "#e86756" : "#75d6ff" },
     { id: "pulse", label: "Pulse", value: `${tideSignal.pulse}/5`, tone: tideSignal.pulse >= 4 ? "high" : tideSignal.pulse >= 3 ? "medium" : "low", color: islandCondition.accent },
-    { id: "path", label: "Path", value: skill, tone: "path", color: pathAccent },
+    { id: "path", label: "Skill", value: skill, tone: "path", color: pathAccent },
     { id: "supply", label: "Supply", value: requiredSupply.label, tone: "supply", color: requiredSupply.accent }
   ];
 
@@ -1756,7 +1718,7 @@ function ForgeScreen({
         </article>
       </div>
 
-      <div className="route-rail" aria-label="Collection routes">
+      <div className="route-rail" aria-label="Craft recipes">
         {contracts.map((hourContract) => {
           const crafted = collection.some((item) => item.dayKey === dayKey && item.hour === hourContract.hour);
           return (
@@ -1769,10 +1731,10 @@ function ForgeScreen({
                 crafted ? "crafted" : ""
               ].join(" ")}
               onClick={() => onSelectHour(hourContract.hour)}
-              aria-label={`${hourContract.label} ${hourContract.title} tier ${hourContract.difficulty}`}
+              aria-label={`${hourContract.label} ${hourContract.title} recipe tier ${hourContract.difficulty}`}
             >
               <span>{hourContract.label}</span>
-              <small>{crafted ? "crafted" : `tier ${hourContract.difficulty}`}</small>
+              <small>{crafted ? "saved" : `recipe ${hourContract.difficulty}`}</small>
             </button>
           );
         })}
@@ -1791,13 +1753,13 @@ function ForgeScreen({
       >
         <div className="contract-banner">
           <div>
-            <p className="overline">Collection Route - Tier {contract.difficulty}</p>
+            <p className="overline">Craft Recipe - Tier {contract.difficulty}</p>
             <h2>{contract.title}</h2>
             <p>{contract.prompt}</p>
           </div>
           <div className="banner-chips">
             <div className="isle-chip">{islandCondition.label}</div>
-            <div className="reward-chip">Find: {contract.reward}</div>
+            <div className="reward-chip">Material: {contract.reward}</div>
           </div>
         </div>
 
@@ -1880,8 +1842,6 @@ function ForgeScreen({
           </div>
         </div>
 
-        <SkillTreePreview contract={contract} unlockedCount={advancedNodeCount} />
-
         <section
           className="tide-language-strip"
           data-risk={tideSignal.riskClass}
@@ -1917,7 +1877,7 @@ function ForgeScreen({
         <div className="forge-readout compact-readout">
           <Metric label="Process" value={`${contract.process.label} ${contract.processLevel}`} />
           <Metric label="Trial" value={lastTrialScore ? `${lastTrialScore}` : "open"} />
-          <Metric label="Routes" value={`${craftedRouteCount}/${contracts.length}`} />
+          <Metric label="Saved" value={`${craftedRouteCount}/${contracts.length}`} />
           <Metric label="Claims" value={`${claimedCount}/4`} />
         </div>
       </section>
@@ -2393,8 +2353,8 @@ function WorkshopScreen({
   return (
     <section className="stack-panel">
       <div className="section-heading">
-        <p className="overline">Market & Workshop</p>
-        <h2>Trade choices, craft identity</h2>
+        <p className="overline">Crafting Bench</p>
+        <h2>Choose how this item is made</h2>
       </div>
 
       <section className="crafting-choice-panel" aria-label="Crafting style">
@@ -2432,7 +2392,7 @@ function WorkshopScreen({
 
             <div className="crafting-choice-copy">
               <strong>Commission quick gear rolls from {quickCrafter.name}</strong>
-              <p>Use offerings to improve visible odds, then auto-list the result if you want a fast market loop. No offering guarantees Masterwork.</p>
+              <p>Use offerings to improve visible odds when you want a fast craft. No offering guarantees Masterwork.</p>
             </div>
 
             <div className="profit-summary-grid" aria-label="Hephaestus commission economy estimate">
@@ -2496,8 +2456,8 @@ function WorkshopScreen({
               </button>
               {dropForgeResult && (
                 <div className="drop-result-card">
-                  <span>{autoListDrops ? "Listed roll" : "Last roll"}</span>
-                  <strong>{dropForgeResult.rarity} / {getMarketShellPrice(dropForgeResult)} shells</strong>
+                  <span>Last quick craft</span>
+                  <strong>{dropForgeResult.rarity} crafted</strong>
                 </div>
               )}
             </div>
@@ -2505,8 +2465,8 @@ function WorkshopScreen({
         ) : (
           <div className="advanced-forge-panel">
             <div className="crafting-choice-copy">
-              <strong>Advanced crafting by skill, nodes, and customization</strong>
-              <p>Use the workshop, path nodes, and forge minigames to control the item instead of letting odds decide.</p>
+              <strong>Advanced crafting with direct control</strong>
+              <p>Use direct part choices, forge heat, and the skill trial to control the item instead of letting odds decide.</p>
             </div>
             <div className="advanced-node-meter">
               <span>Current skill path</span>
