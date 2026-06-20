@@ -76,10 +76,15 @@ type ForgeTarget = {
 
 type TapFeedback = {
   targetId: string;
+  intendedId: string;
   score: number;
   tone: "clean" | "good" | "miss";
+  timing: "early" | "crest" | "late";
+  part: "matched" | "wrong part";
   nonce: number;
 };
+
+type StrikeHit = Omit<TapFeedback, "nonce">;
 
 const forgeTargets: ForgeTarget[] = [
   { id: "edge", label: "Edge", x: 50, y: 27 },
@@ -102,7 +107,7 @@ function ReactionTrial({
   onSound?: (cue: ForgeSoundCue) => void;
 }) {
   const [stepStartedAt, setStepStartedAt] = useState<number | null>(null);
-  const [hits, setHits] = useState<number[]>([]);
+  const [hits, setHits] = useState<StrikeHit[]>([]);
   const [score, setScore] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<TapFeedback | null>(null);
   const stepDuration = Math.max(680, Math.round((1580 - contract.difficulty * 150) * paceMultiplier(trialPace)));
@@ -114,6 +119,21 @@ function ReactionTrial({
     [contract]
   );
   const currentTarget = sequence[hits.length] ?? sequence[sequence.length - 1];
+  const activeStrike = stepStartedAt !== null && score === null;
+  const lastQuality = feedback?.score ?? 0;
+  const strikeCoach = feedback
+    ? feedback.part === "wrong part"
+      ? `Aim for ${currentTarget.label.toLowerCase()} next`
+      : feedback.timing === "early"
+        ? "Hold until the crest crosses"
+        : feedback.timing === "late"
+          ? "Commit before the glow fades"
+          : "Crest strike, keep rhythm"
+    : activeStrike
+      ? `${currentTarget.label} is armed`
+      : contract.skill === "speed"
+        ? "Heat item, then chase the glowing part"
+        : "Heat item, wait for crest, then strike";
 
   function startChain() {
     onSound?.("forgeStart");
@@ -129,16 +149,26 @@ function ReactionTrial({
     const phase = (elapsed % stepDuration) / stepDuration;
     const timingError = Math.abs(phase - 0.58);
     const timingScore = Math.max(0, 100 - timingError * (240 + contract.difficulty * 26));
-    const partPenalty = target.id === currentTarget.id ? 0 : 38;
+    const correctPart = target.id === currentTarget.id;
+    const timing = phase < 0.5 ? "early" : phase > 0.66 ? "late" : "crest";
+    const partPenalty = correctPart ? 0 : 38;
     const nextScore = Math.max(5, Math.round(timingScore - partPenalty));
-    const nextHits = [...hits, nextScore];
     const tone = nextScore >= 78 ? "clean" : nextScore >= 48 ? "good" : "miss";
+    const strike: StrikeHit = {
+      targetId: target.id,
+      intendedId: currentTarget.id,
+      score: nextScore,
+      tone,
+      timing,
+      part: correctPart ? "matched" : "wrong part"
+    };
+    const nextHits = [...hits, strike];
     onSound?.(tone === "clean" ? "strikeClean" : tone === "good" ? "strikeGood" : "strikeMiss");
     setHits(nextHits);
-    setFeedback({ targetId: target.id, score: nextScore, tone, nonce: nextHits.length });
+    setFeedback({ ...strike, nonce: nextHits.length });
     setStepStartedAt(performance.now());
     if (nextHits.length >= sequence.length) {
-      const averageScore = Math.round(nextHits.reduce((sum, hit) => sum + hit, 0) / nextHits.length);
+      const averageScore = Math.round(nextHits.reduce((sum, hit) => sum + hit.score, 0) / nextHits.length);
       setScore(averageScore);
       window.setTimeout(() => onComplete(averageScore), 550);
     }
@@ -154,6 +184,24 @@ function ReactionTrial({
 
       <div className="forge-target-stage">
         <WeaponPreview draft={draft} />
+        {activeStrike && (
+          <div
+            className="strike-guidance-halo"
+            data-tone={feedback?.tone ?? "armed"}
+            style={
+              {
+                "--guide-x": `${currentTarget.x}%`,
+                "--guide-y": `${currentTarget.y}%`,
+                "--guide-duration": `${stepDuration}ms`
+              } as CSSProperties
+            }
+            aria-hidden="true"
+          >
+            <span />
+            <span />
+            <em>{currentTarget.label}</em>
+          </div>
+        )}
         <div className="target-overlay" aria-label="Forged item tap targets">
           {forgeTargets.map((target) => {
             const active = stepStartedAt !== null && target.id === currentTarget.id && score === null;
@@ -182,12 +230,14 @@ function ReactionTrial({
 
       <div className="strike-sequence" aria-label="Forge strike order">
         {sequence.map((target, index) => {
-          const state = index < hits.length ? "hit" : stepStartedAt && index === hits.length && score === null ? "current" : "pending";
+          const hit = hits[index];
+          const state = hit ? `hit ${hit.tone}` : stepStartedAt && index === hits.length && score === null ? "current" : "pending";
 
           return (
             <span className={["sequence-chip", state].join(" ")} key={`${target.id}-${index}`}>
               <i>{index + 1}</i>
               {target.label}
+              {hit && <b>{hit.score}</b>}
             </span>
           );
         })}
@@ -196,13 +246,26 @@ function ReactionTrial({
       <div className="target-readout">
         <span>Next part</span>
         <strong>{stepStartedAt ? currentTarget.label : "Heat item"}</strong>
-        <em>{feedback ? `${feedback.tone} ${feedback.score}` : `${hits.length}/${sequence.length} strikes`}</em>
+        <em>{feedback ? `${feedback.timing} / ${feedback.part}` : `${hits.length}/${sequence.length} strikes`}</em>
+      </div>
+
+      <div
+        className="strike-quality-meter"
+        data-tone={feedback?.tone ?? (activeStrike ? "armed" : "idle")}
+        style={{ "--quality": feedback ? `${lastQuality}%` : activeStrike ? "38%" : "0%" } as CSSProperties}
+        aria-label={feedback ? `Last strike quality ${feedback.score}` : "Strike quality meter waiting"}
+      >
+        <span>strike quality</span>
+        <strong>{feedback ? `${feedback.score}%` : "ready"}</strong>
+        <em>{strikeCoach}</em>
+        <i />
       </div>
 
       <div
         className={stepStartedAt && score === null ? "timing-window-lane active" : "timing-window-lane"}
         aria-label="Strike timing window"
         data-label="Strike window"
+        data-tone={feedback?.tone ?? (activeStrike ? "armed" : "idle")}
         data-value={stepStartedAt ? `${Math.round(stepDuration)}ms sweep` : "heat to arm"}
       >
         <span>early</span>
@@ -222,7 +285,10 @@ function ReactionTrial({
       {hits.length > 0 && (
         <div className="hit-chain">
           {hits.map((hit, index) => (
-            <span key={`${hit}-${index}`}>{hit}</span>
+            <span className={hit.tone} key={`${hit.score}-${index}`}>
+              <strong>{hit.score}</strong>
+              <em>{hit.timing}</em>
+            </span>
           ))}
         </div>
       )}

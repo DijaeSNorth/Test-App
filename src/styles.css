@@ -5479,6 +5479,117 @@ textarea:focus-visible {
   margin: 0;
 }
 
+.strike-guidance-halo {
+  --guide-color: var(--orange-2);
+  position: absolute;
+  left: var(--guide-x, 50%);
+  top: var(--guide-y, 50%);
+  z-index: 4;
+  width: 132px;
+  height: 132px;
+  transform: translate(-50%, -50%);
+  color: var(--guide-color);
+  pointer-events: none;
+}
+
+.strike-guidance-halo span,
+.strike-guidance-halo::before,
+.strike-guidance-halo::after {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.strike-guidance-halo::before {
+  border: 1px solid color-mix(in srgb, var(--guide-color), transparent 16%);
+  background:
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--guide-color), transparent 84%), transparent 42%),
+    conic-gradient(from 0deg, transparent 0 28%, color-mix(in srgb, var(--guide-color), transparent 42%) 32% 37%, transparent 42% 100%);
+  box-shadow:
+    0 0 22px color-mix(in srgb, var(--guide-color), transparent 58%),
+    inset 0 0 18px rgba(0, 0, 0, 0.32);
+  animation: strike-guide-orbit var(--guide-duration, 1200ms) linear infinite;
+}
+
+.strike-guidance-halo::after {
+  inset: 31px;
+  border: 1px dashed color-mix(in srgb, var(--guide-color), white 16%);
+  opacity: 0.78;
+  animation: strike-guide-breathe 1100ms ease-in-out infinite;
+}
+
+.strike-guidance-halo span:first-child {
+  inset: 3px;
+  border: 1px solid color-mix(in srgb, var(--guide-color), transparent 72%);
+  opacity: 0.58;
+}
+
+.strike-guidance-halo span:nth-child(2) {
+  inset: 47px;
+  background: var(--guide-color);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--guide-color), transparent 24%);
+  opacity: 0.72;
+}
+
+.strike-guidance-halo em {
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  transform: translateX(-50%);
+  max-width: 88px;
+  overflow: hidden;
+  padding: 3px 7px;
+  border: 1px solid color-mix(in srgb, var(--guide-color), transparent 42%);
+  border-radius: 999px;
+  color: rgba(255, 244, 218, 0.92);
+  background: rgba(7, 11, 10, 0.62);
+  backdrop-filter: blur(7px);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 920;
+  line-height: 1;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.strike-guidance-halo[data-tone="clean"] {
+  --guide-color: var(--green);
+}
+
+.strike-guidance-halo[data-tone="good"] {
+  --guide-color: var(--teal);
+}
+
+.strike-guidance-halo[data-tone="miss"] {
+  --guide-color: var(--danger);
+}
+
+@keyframes strike-guide-orbit {
+  from {
+    transform: rotate(0deg) scale(0.94);
+  }
+
+  to {
+    transform: rotate(360deg) scale(0.94);
+  }
+}
+
+@keyframes strike-guide-breathe {
+  0%,
+  100% {
+    opacity: 0.36;
+    transform: scale(0.86);
+  }
+
+  52% {
+    opacity: 0.9;
+    transform: scale(1.06);
+  }
+}
+
 .target-overlay {
   position: absolute;
   inset: 0;
@@ -5687,6 +5798,20 @@ textarea:focus-visible {
   font-style: normal;
 }
 
+.sequence-chip b {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  min-width: 22px;
+  padding: 2px 4px;
+  border-radius: 999px;
+  color: currentColor;
+  background: rgba(7, 11, 10, 0.18);
+  font-size: 8px;
+  font-weight: 950;
+  line-height: 1;
+}
+
 .sequence-chip.current {
   border-color: transparent;
   color: #111513;
@@ -5714,9 +5839,26 @@ textarea:focus-visible {
   background: linear-gradient(180deg, var(--green), #55a65a);
 }
 
+.sequence-chip.hit.good {
+  background: linear-gradient(180deg, var(--teal), #2d9f96);
+}
+
+.sequence-chip.hit.miss {
+  color: #fff9f2;
+  background: linear-gradient(180deg, var(--danger), #9c3329);
+}
+
 .sequence-chip.hit i {
   color: var(--green);
   background: #071210;
+}
+
+.sequence-chip.hit.good i {
+  color: var(--teal);
+}
+
+.sequence-chip.hit.miss i {
+  color: var(--danger);
 }
 
 @keyframes sequence-heat {
@@ -5756,6 +5898,94 @@ textarea:focus-visible {
   font-variant-numeric: tabular-nums;
   text-align: center;
   text-shadow: 0 0 12px rgba(56, 189, 176, 0.24);
+}
+
+.strike-quality-meter {
+  --quality-color: var(--steel);
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 5px 9px;
+  align-items: center;
+  min-height: 48px;
+  overflow: hidden;
+  padding: 8px 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--quality-color), transparent 56%);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 20% 0%, color-mix(in srgb, var(--quality-color), transparent 78%), transparent 52%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045), transparent 32%),
+    rgba(0, 0, 0, 0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 10px 22px rgba(0, 0, 0, 0.12);
+}
+
+.strike-quality-meter::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 6px;
+  height: 5px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, rgba(232, 103, 86, 0.45), rgba(255, 192, 102, 0.45), rgba(62, 183, 107, 0.48)),
+    rgba(255, 255, 255, 0.08);
+  opacity: 0.72;
+}
+
+.strike-quality-meter i {
+  position: absolute;
+  left: 10px;
+  bottom: 6px;
+  width: var(--quality, 0%);
+  max-width: calc(100% - 20px);
+  height: 5px;
+  border-radius: 999px;
+  background: var(--quality-color);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--quality-color), transparent 42%);
+  transition: width 180ms ease, background-color 180ms ease;
+}
+
+.strike-quality-meter span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 920;
+  text-transform: uppercase;
+}
+
+.strike-quality-meter strong {
+  justify-self: end;
+  color: var(--quality-color);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 12px color-mix(in srgb, var(--quality-color), transparent 68%);
+}
+
+.strike-quality-meter em {
+  grid-column: 1 / -1;
+  color: rgba(255, 244, 218, 0.82);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 760;
+}
+
+.strike-quality-meter[data-tone="armed"] {
+  --quality: 38%;
+  --quality-color: var(--orange-2);
+}
+
+.strike-quality-meter[data-tone="clean"] {
+  --quality-color: var(--green);
+}
+
+.strike-quality-meter[data-tone="good"] {
+  --quality-color: var(--teal);
+}
+
+.strike-quality-meter[data-tone="miss"] {
+  --quality-color: var(--danger);
 }
 
 .timing-window-lane {
@@ -5825,6 +6055,21 @@ textarea:focus-visible {
 
 .timing-window-lane strong {
   color: var(--orange-2);
+}
+
+.timing-window-lane[data-tone="clean"]::before {
+  border-inline-color: var(--green);
+  background: rgba(62, 183, 107, 0.18);
+}
+
+.timing-window-lane[data-tone="good"]::before {
+  border-inline-color: var(--teal);
+  background: rgba(56, 189, 176, 0.16);
+}
+
+.timing-window-lane[data-tone="miss"]::before {
+  border-inline-color: var(--danger);
+  background: rgba(232, 103, 86, 0.16);
 }
 
 .timing-window-lane i {
@@ -5944,6 +6189,7 @@ textarea:focus-visible {
 
 .hit-chain span {
   display: grid;
+  grid-template-rows: auto auto;
   place-items: center;
   min-height: 32px;
   border-radius: 8px;
@@ -5951,6 +6197,33 @@ textarea:focus-visible {
   background: var(--teal);
   font-weight: 900;
   font-size: 13px;
+}
+
+.hit-chain span.clean {
+  background: var(--green);
+}
+
+.hit-chain span.good {
+  background: var(--teal);
+}
+
+.hit-chain span.miss {
+  color: #fff9f2;
+  background: var(--danger);
+}
+
+.hit-chain strong {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.hit-chain em {
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1;
+  opacity: 0.82;
+  text-transform: uppercase;
 }
 
 .sequence-strip {
@@ -6104,6 +6377,20 @@ textarea:focus-visible {
   .forge-graphic-panel .weapon-preview {
     height: min(224px, 31dvh);
   }
+
+  .strike-guidance-halo {
+    width: 108px;
+    height: 108px;
+  }
+
+  .strike-guidance-halo em {
+    max-width: 74px;
+    font-size: 8px;
+  }
+
+  .strike-quality-meter {
+    min-height: 44px;
+  }
 }
 
 @media (min-width: 390px) {
@@ -6244,6 +6531,8 @@ textarea:focus-visible {
 
   .tap-target.active::before,
   .tap-target.impact::after,
+  .strike-guidance-halo::before,
+  .strike-guidance-halo::after,
   .sequence-chip.current::after,
   .beacon-ray,
   .beacon-ring,
