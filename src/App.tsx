@@ -1615,7 +1615,7 @@ function ForgeScreen({
           <div className="scene-resource-orbs" aria-label="Material supply quick view">
             {supplyTiers.map((tier) => (
               <div
-                className={tier.id === requiredSupplyTier ? "resource-orb required" : "resource-orb"}
+                className={["resource-orb", `tier-${tier.id}`, tier.id === requiredSupplyTier ? "required" : ""].join(" ")}
                 key={tier.id}
                 style={{ "--supply-accent": tier.accent } as CSSProperties}
               >

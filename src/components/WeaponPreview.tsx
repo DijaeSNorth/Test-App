@@ -43,7 +43,8 @@ export function WeaponPreview({ draft, compact = false }: WeaponPreviewProps) {
           </div>
         </>
       )}
-      <svg viewBox="0 0 280 280" role="img" aria-label={`${draft.name} preview`}>
+      <span className={`weapon-art category-${category.id}`} role="img" aria-label={`${draft.name} ${category.label} art`} />
+      <svg className="weapon-vector" viewBox="0 0 280 280" aria-hidden="true" focusable="false">
         <defs>
           <radialGradient id={`glow-${draft.element}`} cx="50%" cy="48%" r="52%">
             <stop offset="0%" stopColor={glow} stopOpacity="0.45" />
