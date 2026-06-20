@@ -235,6 +235,8 @@ textarea:focus-visible {
 }
 
 .phone-shell {
+  position: relative;
+  isolation: isolate;
   width: min(100%, 414px);
   min-height: min(892px, calc(100dvh - 24px));
   max-height: min(892px, calc(100dvh - 24px));
@@ -361,12 +363,64 @@ textarea:focus-visible {
 }
 
 .screen-scroll {
+  position: relative;
+  z-index: 1;
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 0 10px 10px;
   scrollbar-width: thin;
+}
+
+.screen-scroll.route-forward > .forge-panel,
+.screen-scroll.route-forward > .stack-panel,
+.screen-scroll.route-forward > .empty-state {
+  animation: screen-enter-forward 520ms cubic-bezier(0.16, 0.9, 0.24, 1) both;
+}
+
+.screen-scroll.route-back > .forge-panel,
+.screen-scroll.route-back > .stack-panel,
+.screen-scroll.route-back > .empty-state {
+  animation: screen-enter-back 520ms cubic-bezier(0.16, 0.9, 0.24, 1) both;
+}
+
+@keyframes screen-enter-forward {
+  from {
+    opacity: 0;
+    filter: blur(9px) saturate(0.7);
+    transform: translateX(22px) scale(0.982);
+  }
+
+  55% {
+    opacity: 1;
+    filter: blur(1px) saturate(1.08);
+  }
+
+  to {
+    opacity: 1;
+    filter: none;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes screen-enter-back {
+  from {
+    opacity: 0;
+    filter: blur(9px) saturate(0.7);
+    transform: translateX(-22px) scale(0.982);
+  }
+
+  55% {
+    opacity: 1;
+    filter: blur(1px) saturate(1.08);
+  }
+
+  to {
+    opacity: 1;
+    filter: none;
+    transform: translateX(0) scale(1);
+  }
 }
 
 .forge-panel,
@@ -4457,6 +4511,442 @@ textarea:focus-visible {
   box-shadow: 0 0 16px rgba(255, 192, 102, 0.66);
 }
 
+.nav-item::after {
+  content: "";
+  position: absolute;
+  inset: auto 15% 7px;
+  z-index: -1;
+  height: 18px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--tab-accent), white 10%), transparent 58%),
+    linear-gradient(90deg, transparent, color-mix(in srgb, var(--tab-secondary), transparent 42%), transparent);
+  opacity: 0;
+  filter: blur(6px);
+  transform: translateY(12px) scaleX(0.72);
+}
+
+.nav-item.active::after {
+  opacity: 0.66;
+  animation: nav-route-beacon 720ms ease-out both;
+}
+
+@keyframes nav-route-beacon {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scaleX(0.38);
+  }
+
+  42% {
+    opacity: 0.86;
+    transform: translateY(2px) scaleX(1.08);
+  }
+
+  to {
+    opacity: 0.66;
+    transform: translateY(0) scaleX(1);
+  }
+}
+
+.isle-route-transition {
+  position: absolute;
+  inset: clamp(58px, 9dvh, 78px) 0 calc(58px + env(safe-area-inset-bottom)) 0;
+  z-index: 12;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--text);
+  animation: route-transition-shell 930ms cubic-bezier(0.16, 0.9, 0.24, 1) both;
+}
+
+.isle-route-transition::before,
+.isle-route-transition::after {
+  content: "";
+  position: absolute;
+  inset: -12%;
+  pointer-events: none;
+}
+
+.isle-route-transition::before {
+  background:
+    radial-gradient(circle at 50% 46%, color-mix(in srgb, var(--route-accent), transparent 26%), transparent 28%),
+    radial-gradient(circle at 50% 54%, rgba(7, 11, 10, 0.74), transparent 47%),
+    linear-gradient(90deg, rgba(7, 11, 10, 0), rgba(7, 11, 10, 0.7) 28%, rgba(7, 11, 10, 0.66) 72%, rgba(7, 11, 10, 0));
+  animation: route-gate-bloom 930ms ease both;
+}
+
+.isle-route-transition::after {
+  background:
+    repeating-conic-gradient(from 12deg, color-mix(in srgb, var(--route-secondary), transparent 82%) 0deg 4deg, transparent 4deg 19deg),
+    radial-gradient(circle at 50% 50%, transparent 0 34%, rgba(255, 255, 255, 0.07) 35%, transparent 36% 100%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  animation: route-chart-spin 930ms ease both;
+}
+
+.transition-fog,
+.transition-wave,
+.transition-sparks,
+.transition-compass,
+.transition-copy {
+  position: absolute;
+}
+
+.transition-fog {
+  left: -20%;
+  right: -20%;
+  height: 78px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, transparent, color-mix(in srgb, var(--route-accent), transparent 54%), rgba(244, 240, 232, 0.16), transparent),
+    rgba(7, 11, 10, 0.2);
+  filter: blur(18px);
+  opacity: 0;
+}
+
+.transition-fog.fog-a {
+  top: 22%;
+  animation: route-fog-a 930ms ease both;
+}
+
+.transition-fog.fog-b {
+  bottom: 18%;
+  animation: route-fog-b 930ms ease both;
+}
+
+.transition-wave {
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, transparent, color-mix(in srgb, var(--route-accent), white 16%), color-mix(in srgb, var(--route-secondary), transparent 18%), transparent);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--route-accent), transparent 42%);
+  opacity: 0;
+}
+
+.transition-wave.wave-a {
+  top: 34%;
+  animation: route-wave-cross 820ms ease both;
+}
+
+.transition-wave.wave-b {
+  bottom: 31%;
+  animation: route-wave-cross 820ms 80ms ease both reverse;
+}
+
+.isle-route-transition.back .transition-wave.wave-a,
+.isle-route-transition.back .transition-fog.fog-a {
+  animation-direction: reverse;
+}
+
+.isle-route-transition.back .transition-wave.wave-b,
+.isle-route-transition.back .transition-fog.fog-b {
+  animation-direction: reverse;
+}
+
+.transition-compass {
+  z-index: 2;
+  width: min(54vw, 184px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 20px 34px rgba(0, 0, 0, 0.58));
+  animation: route-compass-arrive 930ms cubic-bezier(0.16, 0.9, 0.24, 1) both;
+}
+
+.transition-glyph {
+  position: absolute;
+  inset: 0;
+  background: url("./assets/isle-transition-glyph.svg") center / contain no-repeat;
+  opacity: 0.92;
+  animation: route-glyph-spin 930ms cubic-bezier(0.16, 0.9, 0.24, 1) both;
+}
+
+.transition-compass i {
+  width: 38%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 46% 42%, rgba(255, 244, 218, 0.78), transparent 18%),
+    radial-gradient(circle, color-mix(in srgb, var(--route-accent), white 14%), color-mix(in srgb, var(--route-accent), transparent 72%) 56%, transparent 58%);
+  box-shadow:
+    0 0 22px color-mix(in srgb, var(--route-accent), transparent 28%),
+    inset 0 0 18px rgba(7, 11, 10, 0.52);
+}
+
+.transition-compass b {
+  position: absolute;
+  inset: auto auto 19px 50%;
+  min-width: 74px;
+  padding: 4px 8px;
+  border: 1px solid color-mix(in srgb, var(--route-secondary), transparent 42%);
+  border-radius: 999px;
+  color: color-mix(in srgb, var(--route-secondary), white 20%);
+  background: rgba(7, 11, 10, 0.58);
+  backdrop-filter: blur(8px);
+  font-size: 9px;
+  font-weight: 950;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+}
+
+.transition-copy {
+  z-index: 3;
+  inset: auto 26px 15%;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 9px 10px;
+  border: 1px solid color-mix(in srgb, var(--route-accent), transparent 48%);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 52%),
+    rgba(7, 11, 10, 0.62);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.44);
+  animation: route-copy-rise 930ms ease both;
+}
+
+.transition-copy span,
+.transition-copy em {
+  max-width: 100%;
+  overflow: hidden;
+  color: rgba(244, 240, 232, 0.68);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 850;
+  line-height: 1.1;
+  text-align: center;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.transition-copy strong {
+  max-width: 100%;
+  overflow: hidden;
+  color: color-mix(in srgb, var(--route-secondary), white 22%);
+  font-size: 18px;
+  font-weight: 950;
+  line-height: 1;
+  text-align: center;
+  text-overflow: ellipsis;
+  text-shadow: 0 0 14px color-mix(in srgb, var(--route-accent), transparent 44%);
+  white-space: nowrap;
+}
+
+.transition-copy em {
+  color: rgba(244, 240, 232, 0.58);
+  text-transform: none;
+}
+
+.transition-sparks {
+  inset: 0;
+  z-index: 4;
+}
+
+.transition-sparks span {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--route-secondary), white 20%);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--route-accent), transparent 16%);
+  opacity: 0;
+  animation: route-spark 780ms ease both;
+}
+
+.transition-sparks span:nth-child(1) {
+  top: 28%;
+  left: 18%;
+}
+
+.transition-sparks span:nth-child(2) {
+  top: 22%;
+  right: 23%;
+  animation-delay: 70ms;
+}
+
+.transition-sparks span:nth-child(3) {
+  bottom: 28%;
+  left: 26%;
+  animation-delay: 120ms;
+}
+
+.transition-sparks span:nth-child(4) {
+  right: 19%;
+  bottom: 34%;
+  animation-delay: 180ms;
+}
+
+@keyframes route-transition-shell {
+  0% {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+
+  16%,
+  72% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.012);
+  }
+}
+
+@keyframes route-gate-bloom {
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  24%,
+  72% {
+    opacity: 1;
+  }
+}
+
+@keyframes route-chart-spin {
+  0% {
+    opacity: 0;
+    transform: scale(0.78) rotate(-34deg);
+  }
+
+  38%,
+  64% {
+    opacity: 0.48;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.28) rotate(42deg);
+  }
+}
+
+@keyframes route-fog-a {
+  0% {
+    opacity: 0;
+    transform: translateX(-28%) rotate(-3deg);
+  }
+
+  28%,
+  72% {
+    opacity: 0.76;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(22%) rotate(2deg);
+  }
+}
+
+@keyframes route-fog-b {
+  0% {
+    opacity: 0;
+    transform: translateX(24%) rotate(2deg);
+  }
+
+  28%,
+  72% {
+    opacity: 0.64;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(-22%) rotate(-3deg);
+  }
+}
+
+@keyframes route-wave-cross {
+  0% {
+    opacity: 0;
+    transform: translateX(-44%) scaleX(0.2);
+  }
+
+  36% {
+    opacity: 0.92;
+    transform: translateX(0) scaleX(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(44%) scaleX(0.18);
+  }
+}
+
+@keyframes route-compass-arrive {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.72);
+  }
+
+  28%,
+  62% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-12px) scale(1.08);
+  }
+}
+
+@keyframes route-glyph-spin {
+  0% {
+    transform: rotate(-28deg) scale(0.8);
+  }
+
+  64% {
+    transform: rotate(12deg) scale(1);
+  }
+
+  100% {
+    transform: rotate(36deg) scale(1.08);
+  }
+}
+
+@keyframes route-copy-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+  }
+
+  28%,
+  70% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+}
+
+@keyframes route-spark {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.5);
+  }
+
+  34% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-34px) scale(1.2);
+  }
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -5110,6 +5600,19 @@ textarea:focus-visible {
   scroll-behavior: auto !important;
 }
 
+.app-frame.reduce-motion .isle-route-transition {
+  display: none;
+}
+
+.app-frame.reduce-motion .screen-scroll.route-forward > .forge-panel,
+.app-frame.reduce-motion .screen-scroll.route-forward > .stack-panel,
+.app-frame.reduce-motion .screen-scroll.route-forward > .empty-state,
+.app-frame.reduce-motion .screen-scroll.route-back > .forge-panel,
+.app-frame.reduce-motion .screen-scroll.route-back > .stack-panel,
+.app-frame.reduce-motion .screen-scroll.route-back > .empty-state {
+  animation: none;
+}
+
 @media (max-width: 520px) {
   .app-frame {
     padding: 0;
@@ -5250,6 +5753,24 @@ textarea:focus-visible {
     padding-inline: 4px;
     font-size: 6px;
   }
+
+  .isle-route-transition {
+    inset: clamp(58px, 10dvh, 78px) 0 calc(58px + env(safe-area-inset-bottom)) 0;
+  }
+
+  .transition-copy {
+    right: 14px;
+    left: 14px;
+    bottom: 12%;
+  }
+
+  .transition-copy strong {
+    font-size: 15px;
+  }
+
+  .transition-compass {
+    width: min(58vw, 150px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -5276,8 +5797,15 @@ textarea:focus-visible {
   .tap-target.active::before,
   .tap-target.impact::after,
   .sequence-chip.current::after,
+  .screen-scroll.route-forward > .forge-panel,
+  .screen-scroll.route-forward > .stack-panel,
+  .screen-scroll.route-forward > .empty-state,
+  .screen-scroll.route-back > .forge-panel,
+  .screen-scroll.route-back > .stack-panel,
+  .screen-scroll.route-back > .empty-state,
   .timing-window-lane.active i,
   .forge-touch-map span,
+  .isle-route-transition,
   .mini-tree-map circle.current,
   .drop-odd-row b::after,
   .advanced-node-meter b::after,
@@ -5289,6 +5817,10 @@ textarea:focus-visible {
 
   .timing-window-lane.active i {
     left: 56%;
+  }
+
+  .isle-route-transition {
+    display: none;
   }
 
   .tap-target.active::before {

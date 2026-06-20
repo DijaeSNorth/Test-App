@@ -37,6 +37,13 @@ import {
 import type { CategoryId, CraftedItem, CreativityBreakdown, HourlyContract, ImaginationRecipe, ItemDraft, Rarity, SkillId } from "./types";
 
 type Tab = "forge" | "path" | "workshop" | "collection" | "profile";
+type RouteDirection = "forward" | "back";
+type RouteTransition = {
+  id: number;
+  from: Tab;
+  to: Tab;
+  direction: RouteDirection;
+};
 
 const storageKey = "hourforge.collection.v1";
 const claimedGoalKey = "hourforge.claimed-goals.v1";
@@ -63,6 +70,59 @@ const tabs: Array<{ id: Tab; label: string; icon: "forge" | "path" | "workshop" 
   { id: "collection", label: "Items", icon: "collection" },
   { id: "profile", label: "Isles", icon: "profile" }
 ];
+
+const tabPassages: Record<
+  Tab,
+  {
+    label: string;
+    passage: string;
+    detail: string;
+    accent: string;
+    secondary: string;
+    sigil: string;
+  }
+> = {
+  forge: {
+    label: "Forge",
+    passage: "Anvil Gate",
+    detail: "Heat, timing, and strike craft",
+    accent: "#ff7a2a",
+    secondary: "#ffc066",
+    sigil: "Anvil"
+  },
+  path: {
+    label: "Path",
+    passage: "Star Chart",
+    detail: "Skill nodes and maker legends",
+    accent: "#a980f1",
+    secondary: "#ffc066",
+    sigil: "Stars"
+  },
+  workshop: {
+    label: "Market",
+    passage: "Hephaestus Quay",
+    detail: "Quick crafting and material odds",
+    accent: "#73bd6f",
+    secondary: "#ffc066",
+    sigil: "Quay"
+  },
+  collection: {
+    label: "Items",
+    passage: "Relic Vault",
+    detail: "Tradable assets and export records",
+    accent: "#38bdb0",
+    secondary: "#f4f0e8",
+    sigil: "Vault"
+  },
+  profile: {
+    label: "Isles",
+    passage: "Lighthouse Ledger",
+    detail: "Settings, supplies, and challenge codes",
+    accent: "#75d6ff",
+    secondary: "#ffc066",
+    sigil: "Beacon"
+  }
+};
 
 const marketOffers = [
   {
@@ -785,6 +845,12 @@ export default function App() {
   const [selectedHour, setSelectedHour] = useState(0);
   const contract = contracts[selectedHour] ?? contracts[0];
   const [activeTab, setActiveTab] = useState<Tab>("forge");
+  const [routeTransition, setRouteTransition] = useState<RouteTransition>({
+    id: 0,
+    from: "forge",
+    to: "forge",
+    direction: "forward"
+  });
   const [draft, setDraft] = useState<ItemDraft>(() => createInitialDraft(contract));
   const [collection, setCollection] = useState<CraftedItem[]>(loadSavedCollection);
   const [trialOpen, setTrialOpen] = useState(false);
@@ -1192,7 +1258,22 @@ export default function App() {
   }
 
   function selectTab(tab: Tab) {
+    if (tab === activeTab) {
+      void forgeAudio.play("ui");
+      haptic(4);
+      return;
+    }
+
+    const currentIndex = tabs.findIndex((item) => item.id === activeTab);
+    const nextIndex = tabs.findIndex((item) => item.id === tab);
     void forgeAudio.play("navigate");
+    haptic(8);
+    setRouteTransition((current) => ({
+      id: current.id + 1,
+      from: activeTab,
+      to: tab,
+      direction: nextIndex >= currentIndex ? "forward" : "back"
+    }));
     setActiveTab(tab);
   }
 
@@ -1236,6 +1317,7 @@ export default function App() {
   ]
     .filter(Boolean)
     .join(" ");
+  const activePassage = tabPassages[activeTab];
 
   if (!previewUnlocked) {
     return (
@@ -1253,7 +1335,10 @@ export default function App() {
 
   return (
     <main className={appFrameClassName} style={{ "--tide-accent": islandCondition.accent } as CSSProperties}>
-      <div className="phone-shell">
+      <div
+        className="phone-shell"
+        style={{ "--route-accent": activePassage.accent, "--route-secondary": activePassage.secondary } as CSSProperties}
+      >
         <header className="topbar">
           <div className="brand-lockup">
             <span className="brand-mark logo-mark" aria-hidden="true" />
@@ -1279,7 +1364,11 @@ export default function App() {
           </div>
         </header>
 
-        <div className="screen-scroll">
+        <div
+          className={`screen-scroll route-${routeTransition.direction}`}
+          data-route={activeTab}
+          style={{ "--route-accent": activePassage.accent, "--route-secondary": activePassage.secondary } as CSSProperties}
+        >
           {activeTab === "forge" && (
             <ForgeScreen
               contracts={contracts}
@@ -1386,12 +1475,21 @@ export default function App() {
           )}
         </div>
 
+        {routeTransition.id > 0 && <IsleRouteTransition key={routeTransition.id} transition={routeTransition} />}
+
         <nav className="bottom-nav" aria-label="Game sections">
           {tabs.map((tab) => (
             <button
               className={activeTab === tab.id ? "nav-item active" : "nav-item"}
               type="button"
               key={tab.id}
+              aria-current={activeTab === tab.id ? "page" : undefined}
+              style={
+                {
+                  "--tab-accent": tabPassages[tab.id].accent,
+                  "--tab-secondary": tabPassages[tab.id].secondary
+                } as CSSProperties
+              }
               onClick={() => selectTab(tab.id)}
             >
               <Icon name={tab.icon} />
@@ -1418,6 +1516,42 @@ export default function App() {
         />
       )}
     </main>
+  );
+}
+
+function IsleRouteTransition({ transition }: { transition: RouteTransition }) {
+  const from = tabPassages[transition.from];
+  const to = tabPassages[transition.to];
+  const style = {
+    "--route-accent": to.accent,
+    "--route-secondary": to.secondary
+  } as CSSProperties;
+
+  return (
+    <div className={`isle-route-transition ${transition.direction}`} style={style} aria-hidden="true">
+      <span className="transition-fog fog-a" />
+      <span className="transition-fog fog-b" />
+      <span className="transition-wave wave-a" />
+      <span className="transition-wave wave-b" />
+      <div className="transition-compass">
+        <span className="transition-glyph" />
+        <i />
+        <b>{to.sigil}</b>
+      </div>
+      <div className="transition-copy">
+        <span>
+          {from.label} / {to.label}
+        </span>
+        <strong>{to.passage}</strong>
+        <em>{to.detail}</em>
+      </div>
+      <div className="transition-sparks">
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
+    </div>
   );
 }
 

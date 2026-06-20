@@ -6,6 +6,7 @@ These assets are custom generated for this prototype and optimized into small We
 - `eldertide-logo.webp`: optimized full Eldertide Isles logo for access and splash presentation.
 - `eldertide-logo-mark.webp`: compact forge-emblem crop for small header branding.
 - `progress-rune-grid.svg`: lightweight reusable rune-grid overlay for HUD progress bars and timing lanes.
+- `isle-transition-glyph.svg`: compass/rune passage mark for route transitions and island-gate motion.
 - `item-*.webp`: category item sprites for blade, tool, armor, instrument, and relic previews.
 - `material-*.webp`: crafting material medallions for common through legendary supply tiers.
 - `action-*.webp`: circular forge action medallions for quench, temper, and craft.
