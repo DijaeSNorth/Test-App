@@ -46,6 +46,12 @@ npm run build:tester
 
 ## GitHub Pages Tester Build
 
+Public tester URL:
+
+```text
+https://dijaesnorth.github.io/Test-App/tester/
+```
+
 The included workflow at `.github/workflows/deploy-tester.yml` builds the tester version with:
 
 ```bash
