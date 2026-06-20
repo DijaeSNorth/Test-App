@@ -199,7 +199,12 @@ function ReactionTrial({
         <em>{feedback ? `${feedback.tone} ${feedback.score}` : `${hits.length}/${sequence.length} strikes`}</em>
       </div>
 
-      <div className={stepStartedAt && score === null ? "timing-window-lane active" : "timing-window-lane"} aria-label="Strike timing window">
+      <div
+        className={stepStartedAt && score === null ? "timing-window-lane active" : "timing-window-lane"}
+        aria-label="Strike timing window"
+        data-label="Strike window"
+        data-value={stepStartedAt ? `${Math.round(stepDuration)}ms sweep` : "heat to arm"}
+      >
         <span>early</span>
         <strong>crest</strong>
         <span>late</span>
@@ -413,7 +418,7 @@ function ScoreFeedback({ label, score }: { label: string; score: number }) {
 
 function Slider({ label, value, onChange }: { label: string; value: number; onChange: (value: number) => void }) {
   return (
-    <label className="slider-row">
+    <label className="slider-row" data-label={label} data-value={`${value}%`}>
       <span>
         {label}
         <strong>{value}</strong>

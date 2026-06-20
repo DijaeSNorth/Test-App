@@ -1718,7 +1718,12 @@ function ForgeScreen({
               {heatBonus}
             </small>
           </div>
-          <div className="heat-meter">
+          <div
+            className="heat-meter"
+            data-label="Bellows"
+            data-value={`${forgeHeat}% / target ${heatTarget}%`}
+            style={{ "--progress": `${forgeHeat}%`, "--target": `${heatTarget}%` } as CSSProperties}
+          >
             <span className="heat-target" style={{ left: `${heatTarget}%`, width: `${getHeatBand(contract)}%` }} />
             <span className="heat-fill" style={{ width: `${forgeHeat}%` }} />
           </div>
@@ -1941,7 +1946,13 @@ function SkillPathScreen({
           </div>
         </div>
 
-        <div className="path-progress" aria-label={`${selectedLesson.title} progress ${unlockedCount} of 100`}>
+        <div
+          className="path-progress"
+          aria-label={`${selectedLesson.title} progress ${unlockedCount} of 100`}
+          data-label={selectedLesson.title}
+          data-value={`${unlockedCount}/100 nodes`}
+          style={{ "--progress": `${progressPercent}%` } as CSSProperties}
+        >
           <span style={{ width: `${progressPercent}%` }} />
         </div>
 
@@ -2199,7 +2210,7 @@ function WorkshopScreen({
               {[...rarityOrder].reverse().map((rarity) => (
                 <div className={`drop-odd-row rarity-${rarity.toLowerCase()}`} key={rarity}>
                   <span>{rarity}</span>
-                  <i aria-hidden="true">
+                  <i aria-hidden="true" data-label={rarity} data-value={`${dropOdds[rarity]}%`} style={{ "--progress": `${dropOdds[rarity]}%` } as CSSProperties}>
                     <b style={{ width: `${dropOdds[rarity]}%` }} />
                   </i>
                   <strong>{dropOdds[rarity]}%</strong>
@@ -2246,7 +2257,7 @@ function WorkshopScreen({
             <div className="advanced-node-meter">
               <span>Current skill path</span>
               <strong>{advancedNodeCount}/100 nodes</strong>
-              <i aria-hidden="true">
+              <i aria-hidden="true" data-label="Node mastery" data-value={`${advancedNodeCount}%`} style={{ "--progress": `${advancedNodeCount}%` } as CSSProperties}>
                 <b style={{ width: `${advancedNodeCount}%` }} />
               </i>
             </div>
@@ -2895,7 +2906,13 @@ function Meter({ label, value, max }: { label: string; value: number; max: numbe
   return (
     <div className="meter-row">
       <span>{label}</span>
-      <div className="mini-meter" aria-hidden="true" style={{ "--meter-fill": `${percent}%` } as CSSProperties}>
+      <div
+        className="mini-meter"
+        aria-hidden="true"
+        data-label={label}
+        data-value={`${percent}%`}
+        style={{ "--meter-fill": `${percent}%`, "--progress": `${percent}%` } as CSSProperties}
+      >
         <i style={{ width: `${percent}%` }} />
       </div>
       <strong>{value}</strong>

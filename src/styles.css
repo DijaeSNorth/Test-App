@@ -861,20 +861,59 @@ textarea:focus-visible {
   border-radius: 8px;
   background:
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0 1px, transparent 1px 22px),
+    url("./assets/progress-rune-grid.svg") center / 180px 32px repeat-x,
     linear-gradient(90deg, rgba(117, 214, 255, 0.08), rgba(255, 122, 42, 0.16), rgba(255, 216, 138, 0.12)),
     rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 216, 138, 0.18);
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.46), 0 0 18px rgba(255, 122, 42, 0.08);
 }
 
-.heat-meter::after {
-  content: "";
+.heat-meter::before,
+.path-progress::before,
+.mini-meter::before,
+.drop-odd-row i::before,
+.advanced-node-meter i::before {
+  content: attr(data-label);
   position: absolute;
-  inset: 2px;
+  inset: 50% auto auto 10px;
+  z-index: 5;
+  max-width: 46%;
+  overflow: hidden;
+  color: rgba(244, 240, 232, 0.62);
+  font-size: 8px;
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 1;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  text-transform: uppercase;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.heat-meter::after {
+  content: attr(data-value);
+  position: absolute;
+  inset: 50% 5px auto auto;
   z-index: 3;
   pointer-events: none;
+  max-width: 52%;
+  padding: 2px 6px;
+  border: 1px solid rgba(255, 216, 138, 0.18);
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 48%, rgba(0, 0, 0, 0.16));
+  color: rgba(255, 244, 218, 0.86);
+  background: rgba(7, 11, 10, 0.46);
+  backdrop-filter: blur(6px);
+  font-size: 8px;
+  font-weight: 900;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.86);
+  text-transform: uppercase;
+  transform: translateY(-50%);
+  white-space: nowrap;
 }
 
 .heat-target,
@@ -2588,13 +2627,45 @@ textarea:focus-visible {
 .advanced-node-meter i {
   position: relative;
   isolation: isolate;
-  height: 8px;
+  height: 18px;
   overflow: hidden;
   border-radius: 999px;
   background:
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 14px),
+    url("./assets/progress-rune-grid.svg") center / 180px 32px repeat-x,
     rgba(255, 255, 255, 0.08);
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.42);
+}
+
+.drop-odd-row i::before,
+.advanced-node-meter i::before {
+  left: 9px;
+  max-width: 54%;
+  font-size: 7px;
+}
+
+.drop-odd-row i::after,
+.advanced-node-meter i::after,
+.mini-meter::after,
+.path-progress::after {
+  content: attr(data-value);
+  position: absolute;
+  inset: 50% 5px auto auto;
+  z-index: 6;
+  padding: 2px 6px;
+  border: 1px solid rgba(255, 216, 138, 0.15);
+  border-radius: 999px;
+  color: rgba(255, 244, 218, 0.86);
+  background: rgba(7, 11, 10, 0.44);
+  backdrop-filter: blur(6px);
+  font-size: 8px;
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.86);
+  text-transform: uppercase;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 .drop-odd-row b,
@@ -2608,6 +2679,53 @@ textarea:focus-visible {
     linear-gradient(90deg, var(--teal), var(--orange-2));
   box-shadow: 0 0 12px rgba(56, 189, 176, 0.24);
   transition: width 180ms ease;
+}
+
+.drop-odd-row.rarity-practice b {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 54%),
+    linear-gradient(90deg, #758079, #bfc9d0);
+}
+
+.drop-odd-row.rarity-steady b {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 54%),
+    linear-gradient(90deg, #38bdb0, #73bd6f);
+}
+
+.drop-odd-row.rarity-skilled b {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 54%),
+    linear-gradient(90deg, #73bd6f, #ffc066);
+}
+
+.drop-odd-row.rarity-expert b {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 54%),
+    linear-gradient(90deg, #a980f1, #ffc066);
+}
+
+.drop-odd-row.rarity-masterwork b {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), transparent 54%),
+    linear-gradient(90deg, #ffc066, #ff7a2a);
+}
+
+.drop-odd-row i > b::before,
+.advanced-node-meter i > b::before,
+.mini-meter i::before,
+.path-progress span::before,
+.heat-fill::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 18px;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.68), transparent 34%),
+    linear-gradient(90deg, transparent, rgba(255, 216, 138, 0.48));
+  filter: blur(0.3px);
+  opacity: 0.72;
 }
 
 .drop-odd-row b::after,
@@ -3121,14 +3239,27 @@ textarea:focus-visible {
 .mini-meter {
   position: relative;
   isolation: isolate;
-  height: 10px;
+  height: 18px;
   overflow: hidden;
   border-radius: 8px;
   background:
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 18px),
+    url("./assets/progress-rune-grid.svg") center / 180px 32px repeat-x,
     rgba(0, 0, 0, 0.28);
   border: 1px solid rgba(255, 255, 255, 0.075);
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.42);
+}
+
+.mini-meter::before {
+  left: 8px;
+  max-width: 50%;
+  color: rgba(244, 240, 232, 0.5);
+  font-size: 7px;
+}
+
+.mini-meter::after {
+  right: 4px;
+  font-size: 7px;
 }
 
 .mini-meter i {
@@ -3385,15 +3516,26 @@ textarea:focus-visible {
 .path-progress {
   position: relative;
   isolation: isolate;
-  height: 12px;
+  height: 22px;
   overflow: hidden;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--path-accent), transparent 66%);
   background:
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 24px),
+    url("./assets/progress-rune-grid.svg") center / 180px 32px repeat-x,
     radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--path-accent), transparent 78%), transparent 58%),
     rgba(0, 0, 0, 0.3);
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.46);
+}
+
+.path-progress::before {
+  left: 12px;
+  max-width: 58%;
+  color: color-mix(in srgb, var(--path-accent), #fff 36%);
+}
+
+.path-progress::after {
+  color: color-mix(in srgb, var(--path-accent), #fff 42%);
 }
 
 .path-progress span {
@@ -3753,15 +3895,58 @@ textarea:focus-visible {
 
 .slider-row {
   --value: 50%;
+  position: relative;
+  isolation: isolate;
   display: grid;
   gap: 7px;
   padding: 7px 8px 9px;
+  overflow: hidden;
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.16);
   border: 1px solid rgba(255, 255, 255, 0.075);
 }
 
+.slider-row::before {
+  content: attr(data-label);
+  position: absolute;
+  inset: auto auto 15px 17px;
+  z-index: 2;
+  max-width: 44%;
+  overflow: hidden;
+  color: rgba(244, 240, 232, 0.44);
+  font-size: 7px;
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 1;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.86);
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.slider-row::after {
+  content: attr(data-value);
+  position: absolute;
+  inset: auto 17px 13px auto;
+  z-index: 2;
+  padding: 2px 6px;
+  border: 1px solid rgba(255, 216, 138, 0.14);
+  border-radius: 999px;
+  color: rgba(255, 244, 218, 0.78);
+  background: rgba(7, 11, 10, 0.48);
+  backdrop-filter: blur(6px);
+  font-size: 7px;
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.86);
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
 .slider-row span {
+  position: relative;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -3786,6 +3971,8 @@ textarea:focus-visible {
 }
 
 .slider-row input {
+  position: relative;
+  z-index: 1;
   appearance: none;
   width: 100%;
   height: 22px;
@@ -3800,7 +3987,9 @@ textarea:focus-visible {
   border-radius: 999px;
   border: 1px solid rgba(255, 216, 138, 0.14);
   background:
+    linear-gradient(90deg, transparent max(0%, calc(var(--value) - 14px)), rgba(255, 244, 218, 0.58) var(--value), transparent min(100%, calc(var(--value) + 18px))) 0 / 100% 100% no-repeat,
     linear-gradient(90deg, var(--orange-2), var(--orange)) 0 / var(--value) 100% no-repeat,
+    url("./assets/progress-rune-grid.svg") center / 180px 32px repeat-x,
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 20px),
     rgba(0, 0, 0, 0.34);
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.44);
@@ -3826,6 +4015,7 @@ textarea:focus-visible {
   border-radius: 999px;
   border: 1px solid rgba(255, 216, 138, 0.14);
   background:
+    url("./assets/progress-rune-grid.svg") center / 180px 32px repeat-x,
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 20px),
     rgba(0, 0, 0, 0.34);
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.44);
@@ -3834,7 +4024,9 @@ textarea:focus-visible {
 .slider-row input::-moz-range-progress {
   height: 12px;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--orange-2), var(--orange));
+  background:
+    linear-gradient(90deg, transparent max(0%, calc(var(--value) - 14px)), rgba(255, 244, 218, 0.58) var(--value), transparent min(100%, calc(var(--value) + 18px))),
+    linear-gradient(90deg, var(--orange-2), var(--orange));
 }
 
 .slider-row input::-moz-range-thumb {
@@ -4642,6 +4834,7 @@ textarea:focus-visible {
   border: 1px solid rgba(255, 192, 102, 0.16);
   background:
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 18px),
+    url("./assets/progress-rune-grid.svg") center / 180px 32px repeat-x,
     linear-gradient(90deg, rgba(117, 214, 255, 0.08), rgba(255, 192, 102, 0.16), rgba(232, 103, 86, 0.08)),
     rgba(0, 0, 0, 0.18);
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.34);
@@ -4657,6 +4850,29 @@ textarea:focus-visible {
   border-radius: 8px;
   background: rgba(255, 192, 102, 0.18);
   border-inline: 1px solid var(--orange-2);
+}
+
+.timing-window-lane::after {
+  content: attr(data-value);
+  position: absolute;
+  inset: 5px 7px auto auto;
+  z-index: 3;
+  max-width: 42%;
+  overflow: hidden;
+  padding: 3px 6px;
+  border: 1px solid rgba(255, 216, 138, 0.18);
+  border-radius: 999px;
+  color: rgba(255, 244, 218, 0.82);
+  background: rgba(7, 11, 10, 0.5);
+  backdrop-filter: blur(6px);
+  font-size: 8px;
+  font-weight: 900;
+  line-height: 1;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.86);
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 .timing-window-lane span,
@@ -4710,9 +4926,29 @@ textarea:focus-visible {
   border-radius: 8px;
   background:
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.055) 0 1px, transparent 1px 20px),
+    url("./assets/progress-rune-grid.svg") center / 180px 32px repeat-x,
     linear-gradient(90deg, #1d2522, #352118, #1d2522);
   border: 1px solid rgba(255, 216, 138, 0.16);
   box-shadow: inset 0 1px 6px rgba(0, 0, 0, 0.42);
+}
+
+.strike-track::after {
+  content: attr(data-value);
+  position: absolute;
+  inset: 6px 7px auto auto;
+  z-index: 3;
+  padding: 3px 6px;
+  border: 1px solid rgba(255, 216, 138, 0.18);
+  border-radius: 999px;
+  color: rgba(255, 244, 218, 0.82);
+  background: rgba(7, 11, 10, 0.5);
+  backdrop-filter: blur(6px);
+  font-size: 8px;
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.86);
+  text-transform: uppercase;
+  pointer-events: none;
 }
 
 .hot-zone {
@@ -4993,6 +5229,26 @@ textarea:focus-visible {
   .trial-heat-note {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .heat-meter::before,
+  .path-progress::before,
+  .mini-meter::before,
+  .drop-odd-row i::before,
+  .advanced-node-meter i::before {
+    max-width: 38%;
+    font-size: 6px;
+  }
+
+  .heat-meter::after,
+  .path-progress::after,
+  .mini-meter::after,
+  .drop-odd-row i::after,
+  .advanced-node-meter i::after,
+  .timing-window-lane::after {
+    max-width: 44%;
+    padding-inline: 4px;
+    font-size: 6px;
   }
 }
 
