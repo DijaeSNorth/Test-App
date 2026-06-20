@@ -1727,6 +1727,14 @@ function ForgeScreen({
   const highestReward = getHighestSupplyReward(lastSupplyRewards);
   const latestRewardTotal = lastSupplyRewards.reduce((total, reward) => total + reward.amount, 0);
   const latestRewardKey = lastSupplyRewards.map((reward) => `${reward.tier}-${reward.amount}`).join("-");
+  const pathAccent = skillPathDefinitions[contract.skill].accent;
+  const omenSignals = [
+    { id: "fog", label: "Fog", value: islandCondition.risk, tone: tideSignal.riskClass, color: islandCondition.accent },
+    { id: "heat", label: "Heat", value: heatLabel(contract, forgeHeat), tone: tideSignal.heatSync, color: tideSignal.heatSync === "ready" ? "#73bd6f" : tideSignal.heatSync === "hot" ? "#e86756" : "#75d6ff" },
+    { id: "pulse", label: "Pulse", value: `${tideSignal.pulse}/5`, tone: tideSignal.pulse >= 4 ? "high" : tideSignal.pulse >= 3 ? "medium" : "low", color: islandCondition.accent },
+    { id: "path", label: "Path", value: skill, tone: "path", color: pathAccent },
+    { id: "supply", label: "Supply", value: requiredSupply.label, tone: "supply", color: requiredSupply.accent }
+  ];
 
   return (
     <section className="forge-panel">
@@ -1844,6 +1852,19 @@ function ForgeScreen({
               target {heatTarget}% / {heatBonus >= 0 ? "+" : ""}
               {heatBonus}
             </span>
+          </div>
+          <div className="omen-glass" aria-label="Island omen color signals">
+            {omenSignals.map((signal) => (
+              <span
+                className={`omen-chip ${signal.tone}`}
+                key={signal.id}
+                style={{ "--omen-color": signal.color } as CSSProperties}
+              >
+                <i />
+                <em>{signal.label}</em>
+                <strong>{signal.value}</strong>
+              </span>
+            ))}
           </div>
           <div className="graphic-hud top">
             <span>{skill}</span>

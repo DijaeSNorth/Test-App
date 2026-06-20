@@ -2132,6 +2132,119 @@ textarea:focus-visible {
   font-size: 10px;
 }
 
+.omen-glass {
+  position: absolute;
+  left: 82px;
+  right: 102px;
+  bottom: 166px;
+  z-index: 9;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+  pointer-events: none;
+}
+
+.omen-chip {
+  --omen-color: var(--teal);
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  min-height: 39px;
+  display: grid;
+  align-content: center;
+  gap: 1px;
+  overflow: hidden;
+  padding: 6px 6px 6px 21px;
+  border: 1px solid color-mix(in srgb, var(--omen-color), transparent 54%);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 18% 20%, color-mix(in srgb, var(--omen-color), transparent 60%), transparent 28%),
+    linear-gradient(180deg, color-mix(in srgb, var(--omen-color), transparent 86%), rgba(3, 8, 9, 0.52)),
+    rgba(3, 8, 9, 0.54);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 20px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(8px);
+}
+
+.omen-chip::before {
+  content: "";
+  position: absolute;
+  inset: -42% auto -42% -34%;
+  z-index: -1;
+  width: 56%;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--omen-color), transparent 66%), transparent);
+  opacity: 0.5;
+  transform: rotate(-18deg);
+}
+
+.omen-chip i {
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  width: 9px;
+  height: 25px;
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34), transparent 42%),
+    var(--omen-color);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--omen-color), transparent 44%);
+  transform: translateY(-50%);
+  animation: omen-glow 1900ms ease-in-out infinite;
+}
+
+.omen-chip em,
+.omen-chip strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.omen-chip em {
+  color: color-mix(in srgb, var(--omen-color), #fff 24%);
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 920;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.omen-chip strong {
+  color: rgba(255, 244, 218, 0.92);
+  font-size: 10px;
+  line-height: 1.08;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.84);
+}
+
+.omen-chip.high,
+.omen-chip.hot {
+  border-color: color-mix(in srgb, var(--omen-color), #fff 4%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 18px color-mix(in srgb, var(--omen-color), transparent 70%),
+    0 10px 20px rgba(0, 0, 0, 0.22);
+}
+
+.omen-chip.ready i,
+.omen-chip.low i {
+  animation-duration: 2600ms;
+}
+
+@keyframes omen-glow {
+  0%,
+  100% {
+    opacity: 0.58;
+    transform: translateY(-50%) scaleY(0.82);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(-50%) scaleY(1.08);
+  }
+}
+
 .forge-console > .mini-skill-tree {
   position: absolute;
   left: 8px;
@@ -6308,6 +6421,7 @@ textarea:focus-visible {
 .app-frame.focus-mode .forge-ambience,
 .app-frame.focus-mode .forge-touch-map,
 .app-frame.focus-mode .lighthouse-beacon,
+.app-frame.focus-mode .omen-glass,
 .app-frame.focus-mode .target-impact {
   display: none;
 }
@@ -6376,6 +6490,22 @@ textarea:focus-visible {
 
   .forge-graphic-panel .weapon-preview {
     height: min(224px, 31dvh);
+  }
+
+  .omen-glass {
+    left: 72px;
+    right: 92px;
+    bottom: 162px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .omen-chip {
+    min-height: 34px;
+    padding: 5px 5px 5px 18px;
+  }
+
+  .omen-chip:nth-child(n + 4) {
+    display: none;
   }
 
   .strike-guidance-halo {
@@ -6537,6 +6667,7 @@ textarea:focus-visible {
   .beacon-ray,
   .beacon-ring,
   .tide-signal-lane i.active,
+  .omen-chip i,
   .screen-scroll.route-forward > .forge-panel,
   .screen-scroll.route-forward > .stack-panel,
   .screen-scroll.route-forward > .empty-state,
