@@ -71,6 +71,134 @@ textarea {
   padding: 18px;
 }
 
+.access-shell {
+  position: relative;
+  isolation: isolate;
+  width: min(100%, 430px);
+  min-height: min(760px, calc(100dvh - 36px));
+  display: grid;
+  align-content: center;
+  gap: 22px;
+  overflow: hidden;
+  padding: 30px 26px;
+  border: 1px solid rgba(244, 240, 232, 0.16);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 20%),
+    linear-gradient(148deg, rgba(56, 189, 176, 0.16), transparent 32%),
+    linear-gradient(24deg, rgba(255, 122, 42, 0.18), transparent 40%),
+    #101412;
+  box-shadow: var(--shadow);
+}
+
+.access-shell::before {
+  content: "";
+  position: absolute;
+  inset: auto -12% 0;
+  z-index: -1;
+  height: 42%;
+  background:
+    linear-gradient(180deg, transparent, rgba(56, 189, 176, 0.1) 22%, rgba(0, 0, 0, 0.36)),
+    repeating-linear-gradient(92deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 26px);
+  transform: skewY(-4deg);
+}
+
+.access-brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.access-brand h1 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.05;
+}
+
+.access-copy {
+  display: grid;
+  gap: 9px;
+}
+
+.access-copy h2 {
+  margin: 0;
+  max-width: 310px;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.access-copy p {
+  margin: 0;
+  max-width: 340px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.pin-form {
+  display: grid;
+  gap: 10px;
+}
+
+.pin-field {
+  display: grid;
+  gap: 8px;
+}
+
+.pin-field span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.pin-field input {
+  width: 100%;
+  height: 56px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 192, 102, 0.26);
+  border-radius: 8px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+  outline: none;
+  font-size: 22px;
+  font-weight: 850;
+  text-align: center;
+}
+
+.pin-field input:focus {
+  border-color: var(--orange-2);
+  box-shadow: 0 0 0 3px rgba(255, 192, 102, 0.14);
+}
+
+.pin-status {
+  min-height: 18px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.pin-status.error {
+  color: var(--danger);
+}
+
+.access-runes {
+  position: absolute;
+  inset: auto 22px 22px auto;
+  display: flex;
+  gap: 7px;
+  pointer-events: none;
+}
+
+.access-runes span {
+  width: 8px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, var(--orange-2), rgba(56, 189, 176, 0.28));
+  opacity: 0.52;
+}
+
 .phone-shell {
   width: min(100%, 430px);
   min-height: min(920px, calc(100dvh - 36px));
@@ -3403,6 +3531,19 @@ textarea {
     max-height: 100dvh;
     border-radius: 0;
     border: 0;
+  }
+
+  .access-shell {
+    width: 100%;
+    min-height: 100dvh;
+    border-radius: 0;
+    border: 0;
+    padding: calc(22px + env(safe-area-inset-top)) 20px calc(22px + env(safe-area-inset-bottom));
+  }
+
+  .access-copy h2 {
+    max-width: 280px;
+    font-size: 28px;
   }
 
   .topbar {

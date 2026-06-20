@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, FormEvent } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useForgeAudio } from "./audio";
 import { ForgeTrial } from "./components/ForgeTrial";
@@ -46,6 +46,8 @@ const activityLogKey = "hourforge.activity-log.v1";
 const settingsKey = "hourforge.player-settings.v1";
 const challengeSeedKey = "hourforge.challenge-seed.v1";
 const supplyKey = "eldertide.supplies.v1";
+const previewAccessKey = "eldertide.preview-access.v1";
+const previewAccessPin = "963852";
 const testerSupplies: SupplyInventory = {
   common: 999,
   uncommon: 999,
@@ -303,6 +305,10 @@ const advancedControlMilestones = [
 function isTesterMode() {
   const params = new URLSearchParams(window.location.search);
   return import.meta.env.MODE === "tester" || params.get("tester") === "1";
+}
+
+function loadPreviewAccess() {
+  return window.localStorage.getItem(previewAccessKey) === "unlocked";
 }
 
 function loadSavedCollection() {
@@ -736,6 +742,9 @@ export default function App() {
   const [lootReveal, setLootReveal] = useState<LootReveal | null>(null);
   const [settings, setSettings] = useState<PlayerSettings>(loadPlayerSettings);
   const [challengeSeed, setChallengeSeed] = useState(() => window.localStorage.getItem(challengeSeedKey) ?? createChallengeSeed(dayKey, selectedHour));
+  const [previewUnlocked, setPreviewUnlocked] = useState(loadPreviewAccess);
+  const [pinEntry, setPinEntry] = useState("");
+  const [pinError, setPinError] = useState("");
   const forgeAudio = useForgeAudio();
 
   useEffect(() => {
@@ -780,6 +789,29 @@ export default function App() {
   function haptic(pattern: number | number[] = 12) {
     if (!settings.haptics || !("vibrate" in window.navigator)) return;
     window.navigator.vibrate(pattern);
+  }
+
+  function submitPreviewPin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (pinEntry.trim() === previewAccessPin) {
+      window.localStorage.setItem(previewAccessKey, "unlocked");
+      setPreviewUnlocked(true);
+      setPinEntry("");
+      setPinError("");
+      void forgeAudio.play("reward");
+      haptic([12, 18, 12]);
+      return;
+    }
+
+    setPinEntry("");
+    setPinError("Incorrect PIN");
+    void forgeAudio.play("vent");
+    haptic([8, 12, 8]);
+  }
+
+  function updatePinEntry(value: string) {
+    setPinEntry(value.replace(/\D/g, "").slice(0, previewAccessPin.length));
+    setPinError("");
   }
 
   const existingForHour = collection.find((item) => item.dayKey === dayKey && item.hour === contract.hour);
@@ -1131,19 +1163,32 @@ export default function App() {
     }
   }
 
+  const appFrameClassName = [
+    "app-frame",
+    settings.highContrast ? "high-contrast" : "",
+    settings.reduceMotion ? "reduce-motion" : "",
+    settings.largeText ? "large-text" : "",
+    settings.focusMode ? "focus-mode" : ""
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  if (!previewUnlocked) {
+    return (
+      <main className={appFrameClassName} style={{ "--tide-accent": islandCondition.accent } as CSSProperties}>
+        <AccessGate
+          testerMode={testerMode}
+          pinEntry={pinEntry}
+          pinError={pinError}
+          onPinEntry={updatePinEntry}
+          onSubmit={submitPreviewPin}
+        />
+      </main>
+    );
+  }
+
   return (
-    <main
-      className={[
-        "app-frame",
-        settings.highContrast ? "high-contrast" : "",
-        settings.reduceMotion ? "reduce-motion" : "",
-        settings.largeText ? "large-text" : "",
-        settings.focusMode ? "focus-mode" : ""
-      ]
-        .filter(Boolean)
-        .join(" ")}
-      style={{ "--tide-accent": islandCondition.accent } as CSSProperties}
-    >
+    <main className={appFrameClassName} style={{ "--tide-accent": islandCondition.accent } as CSSProperties}>
       <div className="phone-shell">
         <header className="topbar">
           <div className="brand-lockup">
@@ -1310,6 +1355,65 @@ export default function App() {
         />
       )}
     </main>
+  );
+}
+
+function AccessGate({
+  testerMode,
+  pinEntry,
+  pinError,
+  onPinEntry,
+  onSubmit
+}: {
+  testerMode: boolean;
+  pinEntry: string;
+  pinError: string;
+  onPinEntry: (value: string) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+}) {
+  return (
+    <section className="access-shell" aria-label="Eldertide Isles preview access">
+      <div className="access-brand">
+        <span className="brand-mark">
+          <Icon name="spark" />
+        </span>
+        <div>
+          <p className="overline">Preview Harbor</p>
+          <h1>Eldertide Isles</h1>
+        </div>
+      </div>
+
+      <div className="access-copy">
+        <h2>Enter the island passcode</h2>
+        <p>Tester gates open to the forge sandbox, Hephaestus rolls, market mockups, and exportable local relic assets.</p>
+      </div>
+
+      <form className="pin-form" onSubmit={onSubmit}>
+        <label className="pin-field">
+          <span>Access PIN</span>
+          <input
+            value={pinEntry}
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={previewAccessPin.length}
+            autoComplete="one-time-code"
+            placeholder="000000"
+            aria-invalid={pinError ? "true" : "false"}
+            onChange={(event) => onPinEntry(event.target.value)}
+          />
+        </label>
+        <button className="primary-button wide" type="submit" disabled={pinEntry.length < previewAccessPin.length}>
+          Enter Isles
+        </button>
+        <p className={pinError ? "pin-status error" : "pin-status"}>{pinError || (testerMode ? "Tester build ready." : "Public preview ready.")}</p>
+      </form>
+
+      <div className="access-runes" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
+    </section>
   );
 }
 

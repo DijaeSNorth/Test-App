@@ -24,6 +24,14 @@ npm run build
 
 Tester mode is for QA only. It grants unlimited supplies, tester shell display, and all Hephaestus offerings.
 
+The public preview has a client-side access PIN:
+
+```text
+963852
+```
+
+This is only a casual tester gate for static hosting. It is not real authentication because public JavaScript can be inspected.
+
 Local tester URL:
 
 ```text
@@ -45,4 +53,3 @@ npm run build:tester
 ```
 
 Important: private GitHub repositories do not always make GitHub Pages private. Confirm your account or organization Pages visibility settings before sharing a tester URL.
-
