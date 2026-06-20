@@ -198,6 +198,13 @@ function ReactionTrial({
         <em>{feedback ? `${feedback.tone} ${feedback.score}` : `${hits.length}/${sequence.length} strikes`}</em>
       </div>
 
+      <div className={stepStartedAt && score === null ? "timing-window-lane active" : "timing-window-lane"} aria-label="Strike timing window">
+        <span>early</span>
+        <strong>crest</strong>
+        <span>late</span>
+        <i style={{ animationDuration: `${stepDuration}ms` }} />
+      </div>
+
       <div className="trial-actions">
         <button className="secondary-button" type="button" onClick={startChain} disabled={score !== null}>
           {stepStartedAt ? "Restart" : "Heat Item"}

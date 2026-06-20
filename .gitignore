@@ -1,10 +1,10 @@
 node_modules/
 dist/
 .vite/
+.npm-cache/
 .DS_Store
 Thumbs.db
 *.log
 server.log
 server.err.log
 *.local
-

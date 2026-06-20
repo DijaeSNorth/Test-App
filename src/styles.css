@@ -927,6 +927,98 @@ textarea {
   line-height: 1.1;
 }
 
+.tide-language-strip {
+  --risk-color: var(--teal);
+  --heat-color: var(--orange-2);
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) 54px minmax(0, 1.1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--risk-color), transparent 56%);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--risk-color), transparent 86%), rgba(255, 255, 255, 0.025)),
+    rgba(0, 0, 0, 0.16);
+}
+
+.tide-language-strip[data-risk="medium"] {
+  --risk-color: var(--violet);
+}
+
+.tide-language-strip[data-risk="high"] {
+  --risk-color: var(--danger);
+}
+
+.tide-language-strip[data-heat="cold"] {
+  --heat-color: var(--teal);
+}
+
+.tide-language-strip[data-heat="hot"] {
+  --heat-color: var(--danger);
+}
+
+.tide-signal-main,
+.tide-signal-detail {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.tide-signal-main span,
+.tide-signal-detail span {
+  color: color-mix(in srgb, var(--risk-color), #fff 14%);
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.tide-signal-main strong,
+.tide-signal-detail strong {
+  min-width: 0;
+  color: var(--text);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tide-signal-main em,
+.tide-signal-detail em {
+  min-width: 0;
+  color: var(--muted);
+  font-size: 10px;
+  font-style: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tide-signal-lane {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  padding: 4px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tide-signal-lane i {
+  height: 26px;
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.26) 0 2px, transparent 2px 6px),
+    color-mix(in srgb, var(--risk-color), transparent 66%);
+}
+
+.tide-signal-lane i:nth-child(2) {
+  background:
+    linear-gradient(180deg, var(--heat-color), color-mix(in srgb, var(--heat-color), transparent 58%)),
+    color-mix(in srgb, var(--risk-color), transparent 60%);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--heat-color), transparent 58%);
+}
+
 @keyframes forge-orbit {
   from {
     transform: rotate(0deg) scale(0.98);
@@ -3373,6 +3465,75 @@ textarea {
   text-align: center;
 }
 
+.timing-window-lane {
+  position: relative;
+  min-height: 40px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  overflow: hidden;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 192, 102, 0.16);
+  background:
+    linear-gradient(90deg, rgba(117, 214, 255, 0.08), rgba(255, 192, 102, 0.16), rgba(232, 103, 86, 0.08)),
+    rgba(0, 0, 0, 0.18);
+}
+
+.timing-window-lane::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 46%;
+  width: 24%;
+  border-radius: 8px;
+  background: rgba(255, 192, 102, 0.18);
+  border-inline: 1px solid var(--orange-2);
+}
+
+.timing-window-lane span,
+.timing-window-lane strong {
+  position: relative;
+  z-index: 1;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.timing-window-lane strong {
+  color: var(--orange-2);
+}
+
+.timing-window-lane i {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 8px;
+  width: 5px;
+  border-radius: 8px;
+  background: var(--teal);
+  box-shadow: 0 0 14px rgba(56, 189, 176, 0.72);
+  opacity: 0.28;
+}
+
+.timing-window-lane.active i {
+  opacity: 1;
+  animation: timing-sweep linear infinite;
+}
+
+@keyframes timing-sweep {
+  from {
+    left: 8px;
+  }
+
+  to {
+    left: calc(100% - 13px);
+  }
+}
+
 .strike-track {
   position: relative;
   height: 46px;
@@ -3599,6 +3760,14 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .tide-language-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .tide-signal-lane {
+    grid-template-columns: repeat(3, minmax(34px, 1fr));
+  }
+
   .challenge-code strong {
     text-align: left;
   }
@@ -3632,8 +3801,13 @@ textarea {
 
   .tap-target.active::before,
   .tap-target.impact::after,
-  .sequence-chip.current::after {
+  .sequence-chip.current::after,
+  .timing-window-lane.active i {
     animation: none;
+  }
+
+  .timing-window-lane.active i {
+    left: 56%;
   }
 
   .tap-target.active::before {

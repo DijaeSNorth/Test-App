@@ -218,6 +218,15 @@ type IslandCondition = {
   reward: string;
 };
 
+type TideSignal = {
+  phase: string;
+  channel: string;
+  timing: string;
+  lesson: string;
+  riskClass: string;
+  heatSync: "cold" | "ready" | "hot";
+};
+
 const defaultSettings: PlayerSettings = {
   haptics: true,
   reduceMotion: false,
@@ -411,6 +420,61 @@ const islandConditions: IslandCondition[] = [
 function getIslandCondition(dayKey: string, hour: number) {
   const hash = parseInt(stableHash(`${dayKey}-isle-${hour}`).slice(0, 6), 36);
   return islandConditions[hash % islandConditions.length];
+}
+
+function getTideSignal(contract: HourlyContract, islandCondition: IslandCondition, forgeHeat: number): TideSignal {
+  const timingBySkill: Record<SkillId, Pick<TideSignal, "channel" | "timing" | "lesson">> = {
+    reaction: {
+      channel: "lighthouse flash",
+      timing: "tap on bright crest",
+      lesson: "Reaction speed improves when the cue is specific and repeated."
+    },
+    speed: {
+      channel: "reef spark",
+      timing: "short strike chain",
+      lesson: "Speed training rewards fast decisions without abandoning control."
+    },
+    memory: {
+      channel: "fog echo",
+      timing: "remember paired marks",
+      lesson: "Memory improves when color is backed by shape and order."
+    },
+    math: {
+      channel: "moon ratio",
+      timing: "balance the alloy",
+      lesson: "Math practice turns percentages into material tradeoffs."
+    },
+    rhythm: {
+      channel: "anvil song",
+      timing: "keep steady tempo",
+      lesson: "Rhythm training builds timing prediction and consistency."
+    },
+    music: {
+      channel: "rune chord",
+      timing: "echo the motif",
+      lesson: "Music practice links pattern, timing, and listening."
+    },
+    spatial: {
+      channel: "tide map",
+      timing: "match the silhouette",
+      lesson: "Spatial reasoning compares shape, position, and balance."
+    },
+    creativity: {
+      channel: "maker mark",
+      timing: "commit the intent",
+      lesson: "Creative practice rewards coherent choices, not random parts."
+    }
+  };
+  const phases = ["ebbing gate", "reef rise", "lantern slack", "moon pull", "fog return"];
+  const phase = phases[(contract.hour + contract.difficulty + islandConditions.indexOf(islandCondition)) % phases.length];
+  const heatSync = forgeHeat < getHeatTarget(contract) - getHeatBand(contract) ? "cold" : forgeHeat > getHeatTarget(contract) + getHeatBand(contract) ? "hot" : "ready";
+
+  return {
+    phase,
+    riskClass: islandCondition.risk.toLowerCase(),
+    heatSync,
+    ...timingBySkill[contract.skill]
+  };
 }
 
 function getHeatTarget(contract: HourlyContract) {
@@ -1481,6 +1545,7 @@ function ForgeScreen({
   onExportExisting?: () => void;
 }) {
   const requiredSupply = getSupplyTier(requiredSupplyTier);
+  const tideSignal = getTideSignal(contract, islandCondition, forgeHeat);
 
   return (
     <section className="forge-panel">
@@ -1539,6 +1604,29 @@ function ForgeScreen({
             <strong>{requiredSupply.label}</strong>
           </div>
         </div>
+
+        <section
+          className="tide-language-strip"
+          data-risk={tideSignal.riskClass}
+          data-heat={tideSignal.heatSync}
+          aria-label="Tide signal color guide"
+        >
+          <div className="tide-signal-main">
+            <span>Tide</span>
+            <strong>{tideSignal.phase}</strong>
+            <em>{islandCondition.label}</em>
+          </div>
+          <div className="tide-signal-lane" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </div>
+          <div className="tide-signal-detail">
+            <span>{tideSignal.channel}</span>
+            <strong>{tideSignal.timing}</strong>
+            <em>{tideSignal.lesson}</em>
+          </div>
+        </section>
 
         <div className="forge-readout compact-readout">
           <Metric label="Process" value={`${contract.process.label} ${contract.processLevel}`} />
