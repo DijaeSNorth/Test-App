@@ -1256,9 +1256,7 @@ export default function App() {
       <div className="phone-shell">
         <header className="topbar">
           <div className="brand-lockup">
-            <span className="brand-mark">
-              <Icon name="spark" />
-            </span>
+            <span className="brand-mark logo-mark" aria-hidden="true" />
             <div>
               <h1>Eldertide Isles</h1>
               <p>{testerMode ? "Tester build - unlimited supplies and shells" : dateLabel}</p>
@@ -1438,10 +1436,8 @@ function AccessGate({
 }) {
   return (
     <section className="access-shell" aria-label="Eldertide Isles preview access">
-      <div className="access-brand">
-        <span className="brand-mark">
-          <Icon name="spark" />
-        </span>
+      <div className="access-logo" aria-hidden="true" />
+      <div className="access-brand access-brand-title">
         <div>
           <p className="overline">Preview Harbor</p>
           <h1>Eldertide Isles</h1>

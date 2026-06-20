@@ -128,6 +128,22 @@ textarea:focus-visible {
   gap: 13px;
 }
 
+.access-logo {
+  width: min(74vw, 310px);
+  aspect-ratio: 1;
+  justify-self: center;
+  margin: -14px 0 -16px;
+  background: url("./assets/eldertide-logo.webp") center / contain no-repeat;
+  filter:
+    drop-shadow(0 18px 26px rgba(0, 0, 0, 0.46))
+    drop-shadow(0 0 24px rgba(255, 122, 42, 0.12));
+}
+
+.access-brand-title {
+  justify-content: center;
+  text-align: center;
+}
+
 .access-brand h1 {
   margin: 0;
   font-size: 24px;
@@ -301,6 +317,18 @@ textarea:focus-visible {
     radial-gradient(circle at 68% 24%, rgba(117, 214, 255, 0.24), transparent 32%),
     linear-gradient(145deg, rgba(255, 122, 42, 0.2), rgba(56, 189, 176, 0.12));
   border: 1px solid var(--line);
+}
+
+.brand-mark.logo-mark {
+  overflow: hidden;
+  color: transparent;
+  border-color: rgba(255, 192, 102, 0.34);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 42%),
+    url("./assets/eldertide-logo-mark.webp") center / cover no-repeat;
+  box-shadow:
+    0 0 16px rgba(255, 122, 42, 0.16),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 .brand-mark svg,
@@ -4866,6 +4894,11 @@ textarea:focus-visible {
     border-radius: 0;
     border: 0;
     padding: calc(22px + env(safe-area-inset-top)) 20px calc(22px + env(safe-area-inset-bottom));
+  }
+
+  .access-logo {
+    width: min(76vw, 286px);
+    margin: -10px 0 -12px;
   }
 
   .access-copy h2 {
