@@ -2518,7 +2518,14 @@ function WorkshopScreen({
               {stat}
               <strong>{draft.stats[stat]}</strong>
             </span>
-            <input min="0" max="100" type="range" value={draft.stats[stat]} onChange={(event) => onUpdateStat(stat, Number(event.target.value))} />
+            <input
+              min="0"
+              max="100"
+              type="range"
+              value={draft.stats[stat]}
+              style={{ "--value": `${draft.stats[stat]}%` } as CSSProperties}
+              onChange={(event) => onUpdateStat(stat, Number(event.target.value))}
+            />
           </label>
         ))}
       </div>
@@ -2892,7 +2899,7 @@ function Meter({ label, value, max }: { label: string; value: number; max: numbe
   return (
     <div className="meter-row">
       <span>{label}</span>
-      <div className="mini-meter" aria-hidden="true">
+      <div className="mini-meter" aria-hidden="true" style={{ "--meter-fill": `${percent}%` } as CSSProperties}>
         <i style={{ width: `${percent}%` }} />
       </div>
       <strong>{value}</strong>

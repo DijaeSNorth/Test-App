@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
 import type { ForgeSoundCue } from "../audio";
 import type { HourlyContract, ItemDraft } from "../types";
@@ -417,7 +418,14 @@ function Slider({ label, value, onChange }: { label: string; value: number; onCh
         {label}
         <strong>{value}</strong>
       </span>
-      <input min="0" max="100" value={value} type="range" onChange={(event) => onChange(Number(event.target.value))} />
+      <input
+        min="0"
+        max="100"
+        value={value}
+        type="range"
+        style={{ "--value": `${value}%` } as CSSProperties}
+        onChange={(event) => onChange(Number(event.target.value))}
+      />
     </label>
   );
 }
