@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Eldertide Isles icon">
+  <rect width="512" height="512" rx="112" fill="#111513"/>
+  <path d="M73 374c42-20 82-20 121 0s78 20 117 0 82-20 128 0" fill="none" stroke="#38bdb0" stroke-width="22" stroke-linecap="round"/>
+  <path d="M96 330h320l-42 62H138l-42-62Z" fill="#27322f" stroke="#ffc066" stroke-width="16" stroke-linejoin="round"/>
+  <path d="M136 330c23-54 67-89 120-89s97 35 120 89H136Z" fill="#0f2f2d"/>
+  <path d="M256 72c40 50 61 98 62 145 0 54-25 94-62 121-37-27-62-67-62-121 1-47 22-95 62-145Z" fill="#ff7a2a"/>
+  <path d="M256 122c21 35 31 66 31 94 0 32-12 57-31 77-19-20-31-45-31-77 0-28 10-59 31-94Z" fill="#ffc066"/>
+  <path d="M150 304h212" stroke="#38bdb0" stroke-width="28" stroke-linecap="round"/>
+  <path d="M171 276h170" stroke="#f4f0e8" stroke-width="18" stroke-linecap="round"/>
+  <path d="M128 236l64 64M384 236l-64 64" stroke="#a980f1" stroke-width="26" stroke-linecap="round"/>
+  <circle cx="256" cy="216" r="18" fill="#111513"/>
+  <path d="M344 106c28 6 49 31 49 61-18-18-42-26-68-21 20-7 31-21 19-40Z" fill="#75d6ff" opacity=".86"/>
+</svg>
