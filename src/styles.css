@@ -367,10 +367,14 @@ textarea:focus-visible {
   z-index: 1;
   flex: 1 1 auto;
   min-height: 0;
-  overflow-y: auto;
+  overflow: hidden;
   overscroll-behavior: contain;
-  padding: 0 10px 10px;
-  scrollbar-width: thin;
+  padding: 0 8px 8px;
+  scrollbar-width: none;
+}
+
+.screen-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 .screen-scroll.route-forward > .forge-panel,
@@ -426,14 +430,271 @@ textarea:focus-visible {
 .forge-panel,
 .stack-panel,
 .empty-state {
-  min-height: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .forge-panel {
   display: grid;
-  align-content: start;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  align-content: stretch;
+  gap: 6px;
+  padding-bottom: 0;
+}
+
+.screen-scroll[data-route="forge"] .supply-cache-panel,
+.screen-scroll[data-route="forge"] .goal-board,
+.screen-scroll[data-route="forge"] .export-strip {
+  display: none;
+}
+
+.screen-scroll[data-route="forge"] .forge-console,
+.screen-scroll[data-route="forge"] .forge-graphic-panel {
+  min-height: 0;
+  height: 100%;
+}
+
+.screen-scroll[data-route="workshop"] .stack-panel,
+.screen-scroll[data-route="collection"] .stack-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 8px;
+}
+
+.screen-scroll[data-route="workshop"] .section-heading,
+.screen-scroll[data-route="collection"] .section-heading {
+  margin: 3px 0 7px;
+}
+
+.screen-scroll[data-route="workshop"] .section-heading p,
+.screen-scroll[data-route="collection"] .section-heading p {
+  display: none;
+}
+
+.screen-scroll[data-route="workshop"] .asset-sandbox-panel,
+.screen-scroll[data-route="workshop"] .imagination-panel,
+.screen-scroll[data-route="workshop"] .stat-editor,
+.screen-scroll[data-route="workshop"] .tag-cloud,
+.screen-scroll[data-route="workshop"] .market-panel,
+.screen-scroll[data-route="workshop"] .harbor-market-panel,
+.screen-scroll[data-route="workshop"] .profit-summary-grid,
+.screen-scroll[data-route="workshop"] .profit-toggle,
+.screen-scroll[data-route="workshop"] .advanced-node-meter,
+.screen-scroll[data-route="workshop"] .advanced-control-list,
+.screen-scroll[data-route="workshop"] .advanced-forge-panel .microcopy,
+.screen-scroll[data-route="workshop"] > .stack-panel > .text-field {
+  display: none;
+}
+
+.screen-scroll[data-route="workshop"] .crafting-choice-panel {
+  min-height: 0;
+  margin: 0;
+  padding: 9px;
   gap: 7px;
-  padding-bottom: 64px;
+}
+
+.screen-scroll[data-route="workshop"] .crafting-mode-toggle button {
+  min-height: 31px;
+}
+
+.screen-scroll[data-route="workshop"] .drop-forge-panel,
+.screen-scroll[data-route="workshop"] .advanced-forge-panel {
+  min-height: 0;
+  gap: 7px;
+}
+
+.screen-scroll[data-route="workshop"] .crafter-service-card {
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 8px;
+  padding: 7px;
+}
+
+.screen-scroll[data-route="workshop"] .crafter-sigil {
+  width: 36px;
+  height: 36px;
+  font-size: 16px;
+}
+
+.screen-scroll[data-route="workshop"] .crafting-choice-copy p,
+.screen-scroll[data-route="workshop"] .crafter-service-card p {
+  display: none;
+}
+
+.screen-scroll[data-route="workshop"] .drop-odds-grid {
+  gap: 4px;
+}
+
+.screen-scroll[data-route="workshop"] .drop-odd-row {
+  grid-template-columns: 64px minmax(0, 1fr) 34px;
+  gap: 6px;
+  font-size: 10px;
+}
+
+.screen-scroll[data-route="workshop"] .drop-odd-row i {
+  height: 15px;
+}
+
+.screen-scroll[data-route="workshop"] .drop-booster-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.screen-scroll[data-route="workshop"] .drop-booster {
+  min-height: 48px;
+  grid-template-columns: 1fr;
+  gap: 2px;
+  padding: 6px;
+  text-align: center;
+}
+
+.screen-scroll[data-route="workshop"] .drop-booster em,
+.screen-scroll[data-route="workshop"] .drop-booster small {
+  display: none;
+}
+
+.screen-scroll[data-route="workshop"] .drop-result-card {
+  min-width: 0;
+  padding: 6px;
+}
+
+.screen-scroll[data-route="workshop"] .workshop-actions {
+  margin: 0;
+}
+
+.screen-scroll[data-route="workshop"] .synergy-panel {
+  grid-template-columns: 66px minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  padding: 8px;
+}
+
+.screen-scroll[data-route="workshop"] .synergy-score {
+  display: grid;
+  gap: 1px;
+}
+
+.screen-scroll[data-route="workshop"] .synergy-score span {
+  font-size: 10px;
+}
+
+.screen-scroll[data-route="workshop"] .synergy-score strong {
+  font-size: 24px;
+}
+
+.screen-scroll[data-route="workshop"] .synergy-bars {
+  gap: 4px;
+}
+
+.screen-scroll[data-route="workshop"] .synergy-panel p {
+  display: none;
+}
+
+.screen-scroll[data-route="workshop"] .meter-row {
+  grid-template-columns: 48px minmax(0, 1fr) 22px;
+  gap: 5px;
+  font-size: 9px;
+}
+
+.screen-scroll[data-route="workshop"] .mini-meter {
+  height: 13px;
+}
+
+.screen-scroll[data-route="workshop"] > .stack-panel > .field-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+}
+
+.screen-scroll[data-route="workshop"] > .stack-panel > .field-grid .select-field:nth-child(n + 7) {
+  display: none;
+}
+
+.screen-scroll[data-route="workshop"] > .stack-panel > .field-grid .select-field {
+  gap: 3px;
+}
+
+.screen-scroll[data-route="workshop"] > .stack-panel > .field-grid .select-field span {
+  font-size: 9px;
+  letter-spacing: 0.04em;
+}
+
+.screen-scroll[data-route="workshop"] > .stack-panel > .field-grid .select-field select {
+  height: 34px;
+  padding: 0 7px;
+  font-size: 11px;
+}
+
+.screen-scroll[data-route="collection"] .stack-panel {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.screen-scroll[data-route="collection"] .collection-tools {
+  margin: 0;
+  gap: 6px;
+}
+
+.screen-scroll[data-route="collection"] .collection-tools .select-field {
+  gap: 3px;
+}
+
+.screen-scroll[data-route="collection"] .collection-tools .select-field span {
+  font-size: 9px;
+}
+
+.screen-scroll[data-route="collection"] .collection-tools select {
+  height: 34px;
+  padding: 0 8px;
+  font-size: 11px;
+}
+
+.screen-scroll[data-route="collection"] .collection-list {
+  min-height: 0;
+  overflow: hidden;
+  gap: 8px;
+}
+
+.screen-scroll[data-route="collection"] .item-card {
+  min-height: 0;
+  gap: 8px;
+  padding: 8px;
+}
+
+.screen-scroll[data-route="collection"] .item-card:nth-child(n + 3) {
+  display: none;
+}
+
+.screen-scroll[data-route="collection"] .item-card .weapon-preview {
+  width: 74px;
+  min-width: 74px;
+  height: 74px;
+  margin: 0;
+}
+
+.screen-scroll[data-route="collection"] .item-copy p {
+  display: none;
+}
+
+.screen-scroll[data-route="collection"] .item-meta {
+  max-height: 24px;
+  overflow: hidden;
+  margin: 5px 0 7px;
+}
+
+.screen-scroll[data-route="collection"] .item-meta span {
+  padding: 3px 5px;
+  font-size: 9px;
+}
+
+.screen-scroll[data-route="collection"] .item-actions {
+  gap: 5px;
+}
+
+.screen-scroll[data-route="collection"] .item-actions .secondary-button {
+  min-height: 30px;
+  padding: 0 5px;
+  font-size: 10px;
 }
 
 .forge-status-dock {
@@ -513,6 +774,11 @@ textarea:focus-visible {
   overflow-x: auto;
   padding: 1px 0 2px;
   scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.route-rail::-webkit-scrollbar {
+  display: none;
 }
 
 .route-chip {
@@ -6725,6 +6991,252 @@ textarea:focus-visible {
 
   .transition-compass {
     width: min(58vw, 150px);
+  }
+}
+
+@media (max-height: 740px) {
+  .topbar {
+    gap: 7px;
+    padding: calc(8px + env(safe-area-inset-top)) 8px 5px;
+  }
+
+  .brand-lockup {
+    gap: 7px;
+  }
+
+  .brand-mark {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+
+  .brand-lockup h1 {
+    font-size: 16px;
+  }
+
+  .brand-lockup p,
+  .tester-badge {
+    display: none;
+  }
+
+  .icon-button {
+    width: 32px;
+    height: 32px;
+  }
+
+  .nav-item {
+    min-height: 50px;
+    font-size: 10px;
+  }
+
+  .nav-item svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .screen-scroll {
+    padding: 0 6px 6px;
+  }
+
+  .forge-status-dock {
+    grid-template-columns: 0.72fr 1fr 0.62fr;
+    gap: 5px;
+  }
+
+  .status-chip {
+    min-height: 38px;
+    padding: 5px 6px;
+  }
+
+  .status-chip strong {
+    font-size: 13px;
+  }
+
+  .status-chip em {
+    display: none;
+  }
+
+  .route-rail {
+    grid-auto-columns: 72px;
+    gap: 5px;
+  }
+
+  .route-chip {
+    height: 32px;
+  }
+
+  .route-chip span {
+    max-width: 60px;
+    font-size: 10px;
+  }
+
+  .route-chip small {
+    display: none;
+  }
+
+  .forge-console .contract-banner {
+    top: 8px;
+    left: 8px;
+    right: 92px;
+    padding: 6px 7px;
+  }
+
+  .forge-console .contract-banner h2 {
+    font-size: 13px;
+  }
+
+  .forge-console .contract-banner p:not(.overline) {
+    display: none;
+  }
+
+  .forge-console .compact-readout {
+    top: 8px;
+    right: 8px;
+    width: 78px;
+    gap: 4px;
+  }
+
+  .forge-console .compact-readout .metric {
+    min-height: 31px;
+    padding: 4px 5px;
+  }
+
+  .forge-console .tide-language-strip {
+    top: 56px;
+    left: 64px;
+    right: 74px;
+    grid-template-columns: 1fr 42px;
+  }
+
+  .tide-signal-main {
+    gap: 1px;
+  }
+
+  .scene-resource-orbs {
+    top: 96px;
+    left: 8px;
+    gap: 6px;
+  }
+
+  .resource-orb {
+    width: 42px;
+    height: 42px;
+  }
+
+  .resource-orb span {
+    width: 36px;
+    height: 36px;
+  }
+
+  .resource-orb strong {
+    min-width: 18px;
+    height: 18px;
+    font-size: 9px;
+  }
+
+  .forge-graphic-panel .weapon-preview {
+    height: min(178px, 29dvh);
+  }
+
+  .scene-action-wheel {
+    right: 7px;
+    bottom: 82px;
+    gap: 6px;
+  }
+
+  .round-action {
+    width: 54px;
+    height: 54px;
+    font-size: 8px;
+  }
+
+  .round-action.craft {
+    width: 68px;
+    height: 68px;
+    font-size: 10px;
+  }
+
+  .round-action span {
+    bottom: 7px;
+  }
+
+  .forge-heat-arc {
+    left: 58px;
+    right: 76px;
+    bottom: 64px;
+  }
+
+  .forge-heat-arc i {
+    height: 18px;
+  }
+
+  .forge-heat-arc span {
+    display: none;
+  }
+
+  .omen-glass {
+    display: none;
+  }
+
+  .screen-scroll[data-route="workshop"] .section-heading h2,
+  .screen-scroll[data-route="collection"] .section-heading h2 {
+    font-size: 17px;
+  }
+
+  .screen-scroll[data-route="workshop"] .crafting-choice-panel {
+    padding: 7px;
+    gap: 5px;
+  }
+
+  .screen-scroll[data-route="workshop"] .drop-forge-panel,
+  .screen-scroll[data-route="workshop"] .advanced-forge-panel {
+    gap: 5px;
+  }
+
+  .screen-scroll[data-route="workshop"] .crafter-service-card {
+    display: none;
+  }
+
+  .screen-scroll[data-route="workshop"] .drop-booster {
+    min-height: 40px;
+    padding: 5px;
+  }
+
+  .screen-scroll[data-route="workshop"] .drop-booster span {
+    font-size: 10px;
+  }
+
+  .screen-scroll[data-route="workshop"] .drop-booster strong {
+    font-size: 9px;
+  }
+
+  .screen-scroll[data-route="workshop"] .synergy-bars .meter-row:nth-child(n + 4) {
+    display: none;
+  }
+
+  .screen-scroll[data-route="workshop"] > .stack-panel > .field-grid .select-field:nth-child(n + 5) {
+    display: none;
+  }
+
+  .screen-scroll[data-route="collection"] .item-card .weapon-preview {
+    width: 60px;
+    min-width: 60px;
+    height: 60px;
+  }
+
+  .screen-scroll[data-route="collection"] .item-card:nth-child(n + 2) {
+    display: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .screen-scroll[data-route="workshop"] > .stack-panel > .field-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .screen-scroll[data-route="collection"] .collection-tools,
+  .screen-scroll[data-route="collection"] .item-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
