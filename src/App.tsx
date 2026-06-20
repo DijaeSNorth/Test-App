@@ -657,6 +657,35 @@ function getTotalSupplies(supplies: SupplyInventory) {
   return supplyTierOrder.reduce((total, tier) => total + supplies[tier], 0);
 }
 
+function getSupplyTierOdds(difficulty: number): SupplyInventory {
+  const legendary = 1 + difficulty * 0.9;
+  const epic = 4 + difficulty * 1.6;
+  const rare = 10 + difficulty * 2.4;
+  const uncommon = 26;
+  const common = Math.max(0, 100 - legendary - epic - rare - uncommon);
+
+  return {
+    common: Math.round(common),
+    uncommon,
+    rare: Math.round(rare),
+    epic: Math.round(epic),
+    legendary: Math.round(legendary)
+  };
+}
+
+function combineSupplyRewards(rewards: SupplyReward[]) {
+  return supplyTierOrder
+    .map((tier) => {
+      const amount = rewards.filter((reward) => reward.tier === tier).reduce((total, reward) => total + reward.amount, 0);
+      return amount > 0 ? makeSupplyReward(tier, amount) : null;
+    })
+    .filter((reward): reward is SupplyReward => reward !== null);
+}
+
+function getHighestSupplyReward(rewards: SupplyReward[]) {
+  return [...rewards].sort((a, b) => supplyTierOrder.indexOf(b.tier) - supplyTierOrder.indexOf(a.tier))[0];
+}
+
 function getCraftedRouteCount(collection: CraftedItem[], dayKey: string) {
   return new Set(collection.filter((item) => item.dayKey === dayKey).map((item) => item.hour)).size;
 }
@@ -1680,6 +1709,11 @@ function ForgeScreen({
   const requiredSupply = getSupplyTier(requiredSupplyTier);
   const tideSignal = getTideSignal(contract, islandCondition, forgeHeat);
   const totalSupplies = getTotalSupplies(supplies);
+  const supplyOdds = getSupplyTierOdds(contract.difficulty);
+  const combinedRewards = combineSupplyRewards(lastSupplyRewards);
+  const highestReward = getHighestSupplyReward(lastSupplyRewards);
+  const latestRewardTotal = lastSupplyRewards.reduce((total, reward) => total + reward.amount, 0);
+  const latestRewardKey = lastSupplyRewards.map((reward) => `${reward.tier}-${reward.amount}`).join("-");
 
   return (
     <section className="forge-panel">
@@ -1869,10 +1903,19 @@ function ForgeScreen({
         </section>
       </div>
 
-      <section className="supply-cache-panel" aria-label="Crafting supply cache">
+      <section
+        className={lastSupplyRewards.length > 0 ? "supply-cache-panel has-haul" : "supply-cache-panel"}
+        aria-label="Crafting supply cache"
+        style={
+          {
+            "--cache-accent": requiredSupply.accent,
+            "--cache-secondary": highestReward ? getSupplyTier(highestReward.tier).accent : requiredSupply.accent
+          } as CSSProperties
+        }
+      >
         <div className="supply-cache-heading">
           <div>
-            <span>Collection Cache</span>
+            <span>Salvage Cache</span>
             <strong>{totalSupplies} crafting items ready</strong>
           </div>
           <button className="primary-button small" type="button" onClick={onCollectSupplies}>
@@ -1885,9 +1928,14 @@ function ForgeScreen({
               className={tier.id === requiredSupplyTier ? "supply-tier required" : "supply-tier"}
               key={tier.id}
               style={{ "--supply-accent": tier.accent } as CSSProperties}
+              data-odds={`${supplyOdds[tier.id]}%`}
             >
               <span>{tier.label}</span>
               <small>{tier.real}</small>
+              <i aria-hidden="true">
+                <b style={{ width: `${supplyOdds[tier.id]}%` }} />
+              </i>
+              <em>{supplyOdds[tier.id]}% tide chance</em>
               <strong>{supplies[tier.id]}</strong>
             </article>
           ))}
@@ -1899,12 +1947,26 @@ function ForgeScreen({
           <em>Magic: {requiredSupply.magic}</em>
         </div>
         {lastSupplyRewards.length > 0 && (
-          <div className="supply-reveal" aria-live="polite">
-            {lastSupplyRewards.map((reward, index) => (
-              <span key={`${reward.tier}-${reward.amount}-${index}`} title={reward.lesson}>
-                +{reward.amount} {reward.label}
-              </span>
-            ))}
+          <div className="supply-reveal" key={latestRewardKey} aria-live="polite">
+            <div className="haul-summary">
+              <span>Latest Haul</span>
+              <strong>+{latestRewardTotal} items</strong>
+              <em>{highestReward ? `${getSupplyTier(highestReward.tier).label} led the salvage` : "Cache refilled"}</em>
+            </div>
+            <div className="supply-reveal-list">
+              {combinedRewards.map((reward) => (
+                <article
+                  className={`reveal-card tier-${reward.tier}`}
+                  key={`${reward.tier}-${reward.amount}`}
+                  title={reward.lesson}
+                  style={{ "--supply-accent": getSupplyTier(reward.tier).accent } as CSSProperties}
+                >
+                  <span>+{reward.amount}</span>
+                  <strong>{reward.label}</strong>
+                  <em>{getSupplyTier(reward.tier).magic}</em>
+                </article>
+              ))}
+            </div>
           </div>
         )}
       </section>
