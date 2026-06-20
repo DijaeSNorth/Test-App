@@ -53,3 +53,13 @@ npm run build:tester
 ```
 
 Important: private GitHub repositories do not always make GitHub Pages private. Confirm your account or organization Pages visibility settings before sharing a tester URL.
+
+## Publish Public GitHub Repo
+
+This project is ready to publish as a public GitHub repo once the GitHub CLI is installed and authenticated.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\publish-public-repo.ps1 -Repo eldertide-isles
+```
+
+Use `-Owner your-github-user-or-org` if the script cannot detect the target account. The public preview includes a PIN gate and no-index crawler hints, but it should still be treated as public source code.
