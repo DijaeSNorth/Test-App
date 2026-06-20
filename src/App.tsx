@@ -1265,7 +1265,7 @@ export default function App() {
             </div>
           </div>
           <div className="topbar-actions">
-            {testerMode && <span className="tester-badge">TESTER ∞</span>}
+            {testerMode && <span className="tester-badge">TESTER INF</span>}
             <button
               className={forgeAudio.enabled ? "icon-button active" : "icon-button"}
               type="button"
@@ -1308,6 +1308,7 @@ export default function App() {
               requiredSupplyTier={requiredSupplyTier}
               lastSupplyRewards={lastSupplyRewards}
               canForge={canForge}
+              advancedNodeCount={advancedNodeCount}
               onCollectSupplies={collectSupplies}
               onPumpBellows={pumpBellows}
               onVentHeat={ventHeat}
@@ -1506,6 +1507,7 @@ function ForgeScreen({
   requiredSupplyTier,
   lastSupplyRewards,
   canForge,
+  advancedNodeCount,
   onCollectSupplies,
   onPumpBellows,
   onVentHeat,
@@ -1537,6 +1539,7 @@ function ForgeScreen({
   requiredSupplyTier: SupplyTierId;
   lastSupplyRewards: SupplyReward[];
   canForge: boolean;
+  advancedNodeCount: number;
   onCollectSupplies: () => void;
   onPumpBellows: () => void;
   onVentHeat: () => void;
@@ -1546,9 +1549,28 @@ function ForgeScreen({
 }) {
   const requiredSupply = getSupplyTier(requiredSupplyTier);
   const tideSignal = getTideSignal(contract, islandCondition, forgeHeat);
+  const totalSupplies = getTotalSupplies(supplies);
 
   return (
     <section className="forge-panel">
+      <div className="forge-status-dock" aria-label="Forge status">
+        <article className="status-chip heat">
+          <span>Heat</span>
+          <strong>{forgeHeat}%</strong>
+          <em>{heatLabel(contract, forgeHeat)}</em>
+        </article>
+        <article className="status-chip tide">
+          <span>{islandCondition.risk} risk</span>
+          <strong>{islandCondition.label}</strong>
+          <em>{tideSignal.phase}</em>
+        </article>
+        <article className="status-chip supplies">
+          <span>Cache</span>
+          <strong>{totalSupplies}</strong>
+          <em>{requiredSupplyTier}</em>
+        </article>
+      </div>
+
       <div className="route-rail" aria-label="Collection routes">
         {contracts.map((hourContract) => {
           const crafted = collection.some((item) => item.dayKey === dayKey && item.hour === hourContract.hour);
@@ -1590,6 +1612,12 @@ function ForgeScreen({
             <span />
             <span />
           </div>
+          <div className="forge-touch-map" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+            <span />
+          </div>
           <WeaponPreview draft={draft} />
           <div className="graphic-hud top">
             <span>{skill}</span>
@@ -1604,6 +1632,8 @@ function ForgeScreen({
             <strong>{requiredSupply.label}</strong>
           </div>
         </div>
+
+        <SkillTreePreview contract={contract} unlockedCount={advancedNodeCount} />
 
         <section
           className="tide-language-strip"
@@ -1674,7 +1704,7 @@ function ForgeScreen({
         <div className="supply-cache-heading">
           <div>
             <span>Collection Cache</span>
-            <strong>{getTotalSupplies(supplies)} crafting items ready</strong>
+            <strong>{totalSupplies} crafting items ready</strong>
           </div>
           <button className="primary-button small" type="button" onClick={onCollectSupplies}>
             Collect
@@ -1745,6 +1775,65 @@ function ForgeScreen({
   );
 }
 
+function SkillTreePreview({ contract, unlockedCount }: { contract: HourlyContract; unlockedCount: number }) {
+  const definition = skillPathDefinitions[contract.skill];
+  const nodes = useMemo(() => generateSkillPathNodes(contract.skill), [contract.skill]);
+  const safeUnlockedCount = Math.min(100, Math.max(1, unlockedCount));
+  const visibleNodeCount = 16;
+  const windowStart = Math.max(0, Math.min(nodes.length - visibleNodeCount, safeUnlockedCount - 7));
+  const visibleNodes = nodes.slice(windowStart, windowStart + visibleNodeCount);
+  const visibleIndexes = new Set(visibleNodes.map((node) => node.index));
+  const currentNode = nodes[safeUnlockedCount - 1] ?? nodes[0];
+  const pathStyle = { "--path-accent": definition.accent } as CSSProperties;
+
+  return (
+    <section className="mini-skill-tree" style={pathStyle} aria-label={`${definition.constellation} current skill tree`}>
+      <div className="mini-tree-copy">
+        <span>Skill Tree</span>
+        <strong>{definition.constellation}</strong>
+        <em>{safeUnlockedCount}/100 nodes</em>
+      </div>
+      <svg className="mini-tree-map" viewBox="0 0 100 58" preserveAspectRatio="none" aria-hidden="true">
+        {visibleNodes.flatMap((node) =>
+          node.links
+            .filter((link) => visibleIndexes.has(link))
+            .map((link) => {
+              const target = nodes[link];
+              return (
+                <line
+                  className={node.index < safeUnlockedCount && target.index < safeUnlockedCount ? "unlocked" : ""}
+                  key={`${node.id}-${target.id}`}
+                  x1={node.x}
+                  y1={5 + node.y * 0.48}
+                  x2={target.x}
+                  y2={5 + target.y * 0.48}
+                />
+              );
+            })
+        )}
+        {visibleNodes.map((node) => {
+          const unlocked = node.index < safeUnlockedCount;
+          const current = node.index === currentNode.index;
+          return (
+            <circle
+              className={[unlocked ? "unlocked" : "locked", current ? "current" : "", node.nodeType].join(" ")}
+              cx={node.x}
+              cy={5 + node.y * 0.48}
+              key={node.id}
+              r={node.nodeType === "legend" || node.nodeType === "mastery" ? 2.6 : current ? 2.4 : 1.8}
+            />
+          );
+        })}
+      </svg>
+      <div className="mini-tree-node">
+        <span>Node {currentNode.index + 1}</span>
+        <strong>{currentNode.title}</strong>
+        <em>{currentNode.mentor}</em>
+      </div>
+    </section>
+  );
+}
+
 function SkillPathScreen({
   skillCounts,
   contract
@@ -1803,6 +1892,21 @@ function SkillPathScreen({
         })}
       </div>
 
+      <div className="path-command-dock" aria-label="Selected path summary">
+        <article>
+          <span>Active constellation</span>
+          <strong>{definition.constellation}</strong>
+        </article>
+        <article>
+          <span>Unlocked</span>
+          <strong>{unlockedCount}/100</strong>
+        </article>
+        <article>
+          <span>Current mentor</span>
+          <strong>{selectedNode.mentor}</strong>
+        </article>
+      </div>
+
       <section className="constellation-card" aria-label={`${selectedLesson.title} constellation`}>
         <div className="constellation-header">
           <div>
@@ -1820,66 +1924,68 @@ function SkillPathScreen({
           <span style={{ width: `${progressPercent}%` }} />
         </div>
 
-        <div className="constellation-stage" aria-label={`${selectedLesson.title} 100 node constellation`}>
-          <svg className="constellation-links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-            {nodes.flatMap((node) =>
-              node.links.map((link) => {
-                const target = nodes[link];
-                const unlocked = node.index < unlockedCount && target.index < unlockedCount;
-                return (
-                  <line
-                    className={unlocked ? "unlocked" : ""}
-                    key={`${node.id}-${target.id}`}
-                    x1={target.x}
-                    y1={target.y}
-                    x2={node.x}
-                    y2={node.y}
-                  />
-                );
-              })
-            )}
-          </svg>
+        <div className="constellation-layout">
+          <div className="constellation-stage" aria-label={`${selectedLesson.title} 100 node constellation`}>
+            <svg className="constellation-links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+              {nodes.flatMap((node) =>
+                node.links.map((link) => {
+                  const target = nodes[link];
+                  const unlocked = node.index < unlockedCount && target.index < unlockedCount;
+                  return (
+                    <line
+                      className={unlocked ? "unlocked" : ""}
+                      key={`${node.id}-${target.id}`}
+                      x1={target.x}
+                      y1={target.y}
+                      x2={node.x}
+                      y2={node.y}
+                    />
+                  );
+                })
+              )}
+            </svg>
 
-          {nodes.map((node) => {
-            const unlocked = node.index < unlockedCount;
-            const selected = node.index === selectedNode.index;
-            const current = node.index + 1 === unlockedCount;
-            return (
-              <button
-                aria-label={`${node.index + 1} of 100, ${node.title}, ${unlocked ? "unlocked" : "locked preview"}`}
-                className={[
-                  "constellation-node",
-                  node.nodeType,
-                  unlocked ? "unlocked" : "locked",
-                  selected ? "selected" : "",
-                  current ? "current" : ""
-                ].join(" ")}
-                key={node.id}
-                onClick={() => setSelectedNodeIndex(node.index)}
-                style={{ left: `${node.x}%`, top: `${node.y}%` }}
-                type="button"
-              >
-                <span>{node.index + 1}</span>
-              </button>
-            );
-          })}
+            {nodes.map((node) => {
+              const unlocked = node.index < unlockedCount;
+              const selected = node.index === selectedNode.index;
+              const current = node.index + 1 === unlockedCount;
+              return (
+                <button
+                  aria-label={`${node.index + 1} of 100, ${node.title}, ${unlocked ? "unlocked" : "locked preview"}`}
+                  className={[
+                    "constellation-node",
+                    node.nodeType,
+                    unlocked ? "unlocked" : "locked",
+                    selected ? "selected" : "",
+                    current ? "current" : ""
+                  ].join(" ")}
+                  key={node.id}
+                  onClick={() => setSelectedNodeIndex(node.index)}
+                  style={{ left: `${node.x}%`, top: `${node.y}%` }}
+                  type="button"
+                >
+                  <span>{node.index + 1}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <article className={selectedNode.index < unlockedCount ? "node-detail unlocked" : "node-detail locked"}>
+            <div className="node-detail-title">
+              <span>
+                Node {selectedNode.index + 1}/100 - Tier {selectedNode.tier}
+              </span>
+              <h3>{selectedNode.title}</h3>
+            </div>
+            <p>{selectedNode.upgrade}</p>
+            <strong>{selectedNode.practice}</strong>
+            <div className="node-meta-row">
+              <span>{selectedNode.nodeType}</span>
+              <span>Mentor: {selectedNode.mentor}</span>
+              <span>{selectedNode.index < unlockedCount ? "Unlocked" : "Preview"}</span>
+            </div>
+          </article>
         </div>
-
-        <article className={selectedNode.index < unlockedCount ? "node-detail unlocked" : "node-detail locked"}>
-          <div className="node-detail-title">
-            <span>
-              Node {selectedNode.index + 1}/100 - Tier {selectedNode.tier}
-            </span>
-            <h3>{selectedNode.title}</h3>
-          </div>
-          <p>{selectedNode.upgrade}</p>
-          <strong>{selectedNode.practice}</strong>
-          <div className="node-meta-row">
-            <span>{selectedNode.nodeType}</span>
-            <span>Mentor: {selectedNode.mentor}</span>
-            <span>{selectedNode.index < unlockedCount ? "Unlocked" : "Preview"}</span>
-          </div>
-        </article>
       </section>
 
       <div className="path-lore-strip" aria-label="Path philosophy and milestone references">
