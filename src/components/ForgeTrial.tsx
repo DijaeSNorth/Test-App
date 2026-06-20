@@ -340,9 +340,9 @@ function RatioTrial({
       <p className="lesson-copy">
         Mental math: match {target.iron}% iron, {target.carbon}% carbon, {target.aether}% aether.
       </p>
-      <Slider label="Iron" value={mix.iron} onChange={(value) => update("iron", value)} />
-      <Slider label="Carbon" value={mix.carbon} onChange={(value) => update("carbon", value)} />
-      <Slider label="Aether" value={mix.aether} onChange={(value) => update("aether", value)} />
+      <Slider label="Iron" value={mix.iron} target={target.iron} onChange={(value) => update("iron", value)} />
+      <Slider label="Carbon" value={mix.carbon} target={target.carbon} onChange={(value) => update("carbon", value)} />
+      <Slider label="Aether" value={mix.aether} target={target.aether} onChange={(value) => update("aether", value)} />
       <button className="primary-button wide" type="button" onClick={pour} disabled={score !== null}>
         Pour Alloy
       </button>
@@ -454,8 +454,9 @@ function BalanceTrial({
       {statKeys.map((key) => (
         <Slider
           key={key}
-          label={`${key} -> ${target[key]}`}
+          label={key}
           value={stats[key]}
+          target={target[key]}
           onChange={(value) => setStats((current) => ({ ...current, [key]: value }))}
         />
       ))}
@@ -482,14 +483,24 @@ function ScoreFeedback({ label, score }: { label: string; score: number }) {
   );
 }
 
-function Slider({ label, value, onChange }: { label: string; value: number; onChange: (value: number) => void }) {
+function Slider({ label, value, target, onChange }: { label: string; value: number; target?: number; onChange: (value: number) => void }) {
+  const hasTarget = typeof target === "number";
+  const targetValue = hasTarget ? Math.max(0, Math.min(100, Math.round(target))) : 0;
+
   return (
-    <label className="slider-row" data-label={label} data-value={`${value}%`}>
+    <label
+      className={hasTarget ? "slider-row has-target" : "slider-row"}
+      data-label={label}
+      data-value={`${value}%`}
+      data-target={hasTarget ? `target ${targetValue}%` : undefined}
+      style={hasTarget ? ({ "--target": `${targetValue}%` } as CSSProperties) : undefined}
+    >
       <span>
         {label}
         <strong>{value}</strong>
       </span>
       <input
+        aria-label={hasTarget ? `${label} value ${value}, target ${targetValue}` : label}
         min="0"
         max="100"
         value={value}
@@ -497,6 +508,12 @@ function Slider({ label, value, onChange }: { label: string; value: number; onCh
         style={{ "--value": `${value}%` } as CSSProperties}
         onChange={(event) => onChange(Number(event.target.value))}
       />
+      {hasTarget && (
+        <span className="slider-target-marker" aria-hidden="true">
+          <i />
+          <em>target {targetValue}</em>
+        </span>
+      )}
     </label>
   );
 }
