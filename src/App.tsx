@@ -1612,13 +1612,47 @@ function ForgeScreen({
             <span />
             <span />
           </div>
+          <div className="scene-resource-orbs" aria-label="Material supply quick view">
+            {supplyTiers.map((tier) => (
+              <div
+                className={tier.id === requiredSupplyTier ? "resource-orb required" : "resource-orb"}
+                key={tier.id}
+                style={{ "--supply-accent": tier.accent } as CSSProperties}
+              >
+                <span />
+                <strong>{supplies[tier.id]}</strong>
+              </div>
+            ))}
+          </div>
           <div className="forge-touch-map" aria-hidden="true">
             <span />
             <span />
             <span />
             <span />
           </div>
+          <div className="scene-action-wheel" aria-label="Forge actions">
+            <button className="round-action quench" type="button" onClick={onVentHeat}>
+              <span>Quench</span>
+            </button>
+            <button className="round-action temper" type="button" onClick={onPumpBellows}>
+              <span>Temper</span>
+            </button>
+            <button className="round-action craft" type="button" onClick={onOpenTrial}>
+              <span>{!canForge ? "Collect" : existingForHour ? "Reforge" : "Craft"}</span>
+            </button>
+          </div>
           <WeaponPreview draft={draft} />
+          <div className="forge-heat-arc" aria-label={`Heat ${forgeHeat} percent, target ${heatTarget} percent`}>
+            <i>
+              <b style={{ width: `${forgeHeat}%` }} />
+              <em style={{ left: `${heatTarget}%` }} />
+            </i>
+            <strong>{heatLabel(contract, forgeHeat)}</strong>
+            <span>
+              target {heatTarget}% / {heatBonus >= 0 ? "+" : ""}
+              {heatBonus}
+            </span>
+          </div>
           <div className="graphic-hud top">
             <span>{skill}</span>
             <strong>{categoryLabel}</strong>
@@ -1757,20 +1791,11 @@ function ForgeScreen({
         })}
       </div>
 
-      <div className="action-row floating-action-bar">
-        <button className="primary-button" type="button" onClick={onOpenTrial}>
-          {!canForge ? "Collect First" : existingForHour ? "Reforge" : "Forge"}
+      {existingForHour && (
+        <button className="secondary-button wide export-strip" type="button" onClick={onExportExisting}>
+          Export forged relic asset
         </button>
-        <button className="secondary-button" type="button" onClick={onPumpBellows}>
-          Pump
-        </button>
-        <button className="secondary-button" type="button" onClick={onVentHeat}>
-          Vent
-        </button>
-        <button className="secondary-button" type="button" onClick={onExportExisting} disabled={!existingForHour}>
-          Export
-        </button>
-      </div>
+      )}
     </section>
   );
 }
